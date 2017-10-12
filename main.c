@@ -56,17 +56,31 @@ void dump_node_paths() {
     }
 }
 
-void dump_node(struct node_info* node_info_item, int width);
-void dump_node(struct node_info* node_info_item, int width) {
+void dump_node(struct node_info* node_info_item, bool recurse);
+void dump_node(struct node_info* node_info_item, bool recurse) {
     int index_width;
-    for (index_width = 0; index_width<width; index_width++) {
+    for (index_width = 0; index_width<node_info_item->depth; index_width++) {
         printf("  ");
     }
     printf("[%s] [%ld] [%ld]\n", node_info_item->name, node_info_item->size, node_info_item->occ_size);
     struct node_info *child = node_info_item->first_child;
-    while (child != NULL) {
-        dump_node(child, width+1);
-        child = child->next;
+    if (recurse) {
+        while (child != NULL) {
+            dump_node(child, recurse);
+            child = child->next;
+        }
+    }
+}
+
+void node_info_release() {
+    printf("free ");
+    dump_node(node_info_last, false);
+    node_info_last = node_info_last->parent;
+}
+
+void node_info_release_all() {
+    while (node_info_last != NULL) {
+        node_info_release();
     }
 }
 
@@ -74,8 +88,7 @@ int on_file_item(const char* fpath, const struct stat *sb, int typeflag, struct 
     char* name = NULL; 
 
     while ( (node_info_last != NULL) && (! is_sub_path(fpath, node_info_last->path)) ) {
-
-        node_info_last = node_info_last->parent;
+        node_info_release();
     }
 
     lstat(fpath, stat_buf);
@@ -121,7 +134,8 @@ int main(int argc, char** argv) {
         path = argv[1];
     }
     nftw(path, on_file_item, 200, 0);
-    dump_node(node_info_root,0);
+    node_info_release_all();
+    dump_node(node_info_root, true);
     return 0;
 }
 
