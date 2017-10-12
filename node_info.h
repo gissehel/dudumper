@@ -11,6 +11,7 @@ struct node_info {
     char* name;
     size_type size;
     size_type occ_size;
+    long depth;
 };
 
 struct node_info* node_info_create();

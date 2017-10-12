@@ -26,10 +26,18 @@ bool is_sub_path(const char* value, const char* pattern) {
 
     if (strncmp(value, pattern, pattern_len) == 0) {
         if (value[pattern_len] == '/') {
+            size_t index;
+            for(index = pattern_len+1; index < value_len; index++) {
+                if (value[index] == '/') {
+                    /* This is not a direct sub path... like /foo/bar and /foo/bar/sha/bok */
+                    return false;
+                }
+            }
             return true;
         }
         return false;
     }
+    return false;
 }
 
 char* get_path_name(const char* parent, const char* path) {
@@ -66,6 +74,7 @@ int on_file_item(const char* fpath, const struct stat *sb, int typeflag, struct 
     char* name = NULL; 
 
     while ( (node_info_last != NULL) && (! is_sub_path(fpath, node_info_last->path)) ) {
+
         node_info_last = node_info_last->parent;
     }
 

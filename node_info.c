@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 #include "node_info.h"
 
 struct node_info* node_info_create() {
@@ -13,6 +14,7 @@ struct node_info* node_info_create() {
     node_info->name = NULL;
     node_info->size = 0;
     node_info->occ_size = 0;
+    node_info->depth = 0;
     return node_info;
 }
 
@@ -32,6 +34,7 @@ struct node_info* node_info_create_from_parent(struct node_info* parent, const c
             node_info->prev = parent->last_child;
             parent->last_child = node_info;
         }
+        node_info->depth = parent->depth+1;
     }
     return node_info;
 }
@@ -44,5 +47,4 @@ void node_info_free(struct node_info* node_info) {
         free(node_info->name);
     }
     free(node_info);
-
 }
