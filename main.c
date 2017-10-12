@@ -73,9 +73,16 @@ void dump_node(struct node_info* node_info_item, bool recurse) {
 }
 
 void node_info_release() {
+    struct node_info* last_node_info = node_info_last;
+
+    /*
     printf("free ");
+    */
     dump_node(node_info_last, false);
+    
+    
     node_info_last = node_info_last->parent;
+    node_info_free(last_node_info);
 }
 
 void node_info_release_all() {
@@ -135,7 +142,7 @@ int main(int argc, char** argv) {
     }
     nftw(path, on_file_item, 200, 0);
     node_info_release_all();
-    dump_node(node_info_root, true);
+    // dump_node(node_info_root, true);
     return 0;
 }
 
