@@ -8,11 +8,11 @@
 #include <ftw.h>
 #include <string.h>
 #include <stdbool.h>
-#include "node_path.h"
+#include "node_info.h"
 
 struct stat st_stat_buf;
-struct node_path* node_path_root;
-struct node_path* node_path_last;
+struct node_info* node_info_root;
+struct node_info* node_info_last;
 
 #define stat_buf (&st_stat_buf)
 
@@ -41,10 +41,10 @@ char* get_path_name(const char* parent, const char* path) {
 }
 
 void dump_node_paths() {
-    struct node_path* node_path = node_path_root;
-    while (node_path != NULL) {
-        printf("    node path : [%s] [%ld] [%ld]\n", node_path->path, node_path->node->size, node_path->node->occ_size);
-        node_path = node_path->next;
+    struct node_info* node_info = node_info_last;
+    while (node_info != NULL) {
+        printf("    node path : [%s] [%ld] [%ld]\n", node_info->path, node_info->size, node_info->occ_size);
+        node_info = node_info->parent;
     }
 }
 
@@ -65,19 +65,15 @@ void dump_node(struct node_info* node_info_item, int width) {
 int on_file_item(const char* fpath, const struct stat *sb, int typeflag, struct FTW *ftwbuf) {
     char* name = NULL; 
 
-    // printf("on_file_item : [%s]\n", fpath);
-    // dump_node_paths();
-
-    while ( (node_path_last != NULL) && (! is_sub_path(fpath, node_path_last->path)) ) {
-        // printf("node_path_free ([%s] is not sub path of [%s])\n", node_path_last->path, fpath);
-        node_path_free(&node_path_last);
+    while ( (node_info_last != NULL) && (! is_sub_path(fpath, node_info_last->path)) ) {
+        node_info_last = node_info_last->parent;
     }
 
     lstat(fpath, stat_buf);
 
-    if (node_path_last != NULL) {
-        if (is_sub_path(fpath, node_path_last->path)) {
-            name = get_path_name(node_path_last->path, fpath);
+    if (node_info_last != NULL) {
+        if (is_sub_path(fpath, node_info_last->path)) {
+            name = get_path_name(node_info_last->path, fpath);
         } else {
             name = strdup(fpath);
         }
@@ -85,41 +81,24 @@ int on_file_item(const char* fpath, const struct stat *sb, int typeflag, struct 
         name = strdup(fpath);
     }
     
-    // printf("name: [%s]\n", name);
+    struct node_info* node_info = node_info_create_from_parent(node_info_last == NULL ? NULL : node_info_last, fpath, name);
 
-    if (node_path_last == NULL) {
-        // printf("node_path_last == NULL\n");
+    size_type size = stat_buf->st_size;
+    size_type occ_size = stat_buf->st_blksize*stat_buf->st_blocks/8;
+
+    {
+        struct node_info* current_node_info = node_info;
+        while (current_node_info != NULL) {
+            current_node_info->size += size;
+            current_node_info->occ_size += occ_size;
+            current_node_info = current_node_info->parent;
+        }
     }
 
-    //if (S_ISDIR(stat_buf->st_mode)) {
-        struct node_path* node_path = NULL;
-        struct node_info* node_info = node_info_create_from_parent(node_path_last == NULL ? NULL : node_path_last->node, fpath, name);
-        node_path = node_path_create(fpath, node_info);
-
-        size_type size = stat_buf->st_size;
-        size_type occ_size = stat_buf->st_blksize*stat_buf->st_blocks/8;
-
-        // printf("dir  : [%s] [%s] [%ld] [%ld]\n", fpath, name, size, occ_size);
-        {
-            struct node_info* current_node_info = node_info;
-            while (current_node_info != NULL) {
-                current_node_info->size += size;
-                current_node_info->occ_size += occ_size;
-                current_node_info = current_node_info->parent;
-            }
-        }
-
-        if (node_path_root == NULL) {
-            node_path_root = node_path;
-            node_path_last = node_path;
-        } else {
-            node_path->prev = node_path_last;
-            node_path_last->next = node_path;
-            node_path_last = node_path;
-        }
-    //} else {
-        // printf("file : [%s] [%s] [%ld]\n", fpath, name, stat_buf->st_size);
-    //}
+    if (node_info_root == NULL) {
+        node_info_root = node_info;
+    }
+    node_info_last = node_info;
 
     return 0;
 }
@@ -133,7 +112,7 @@ int main(int argc, char** argv) {
         path = argv[1];
     }
     nftw(path, on_file_item, 200, 0);
-    dump_node(node_path_root->node,0);
+    dump_node(node_info_root,0);
     return 0;
 }
 
