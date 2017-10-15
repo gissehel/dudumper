@@ -1,6 +1,9 @@
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 #include "node_info.h"
+
+long next_node_id = 1;
 
 struct node_info* node_info_create() {
     struct node_info* node_info;
@@ -15,15 +18,18 @@ struct node_info* node_info_create() {
     node_info->size = 0;
     node_info->occ_size = 0;
     node_info->depth = 0;
+    node_info->id = next_node_id;
+    next_node_id++;
     return node_info;
 }
 
-struct node_info* node_info_create_from_parent(struct node_info* parent, const char* path, char* name) {
+struct node_info* node_info_create_from_parent(struct node_info* parent, const char* path, const char* name) {
     struct node_info* node_info;
     node_info = node_info_create();
     node_info->parent = parent;
     node_info->path = strdup(path);
-    node_info->name = name;
+    node_info->name = strdup(name);
+    
 
     if (parent != NULL) {
         if (parent->last_child == NULL) {
@@ -43,8 +49,54 @@ void node_info_free(struct node_info* node_info) {
     if (node_info == NULL) {
         return;
     }
+    if (node_info->first_child != NULL) {
+        struct node_info* current = node_info->first_child;
+        while (current != NULL) {
+            if (current->parent == node_info) {
+                current->parent = NULL;
+                printf("-- making orphan [%s][%s]\n", current->name, current->path);
+            }
+            current = current->next;
+        }
+        node_info->first_child = NULL;
+    }
+    if (node_info->last_child != NULL) {
+        struct node_info* current = node_info->last_child;
+        while (current != NULL) {
+            if (current->parent == node_info) {
+                current->parent = NULL;
+                printf("-- making orphan [%s][%s]\n", current->name, current->path);
+            }
+            current = current->next;
+        }
+        node_info->last_child = NULL;
+    }
+    struct node_info* prev = node_info->prev;
+    struct node_info* next = node_info->prev;
+    if (prev != NULL) {
+        prev->next = next;
+        node_info->prev = NULL;
+    }
+    if (next != NULL) {
+        next->prev = prev;
+        node_info->next = NULL;
+    }
+    if (node_info->parent != NULL) {
+        if (node_info->parent->first_child == node_info) {
+            node_info->parent->first_child = next;
+        }
+        if (node_info->parent->last_child == node_info) {
+            node_info->parent->last_child = prev;
+        }
+    }
+    if (node_info->path != NULL) {
+        free(node_info->path);
+        node_info->path = NULL;
+    }
     if (node_info->name != NULL) {
         free(node_info->name);
+        node_info->name = NULL;
     }
     free(node_info);
 }
+
