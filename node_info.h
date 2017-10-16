@@ -1,5 +1,7 @@
 #ifndef __NODE_INFO_H
 #define __NODE_INFO_H
+#include <stdbool.h>
+
 
 typedef long size_type;
 
@@ -16,6 +18,7 @@ struct node_info {
     size_type occ_size;
     long depth;
     long id;
+    bool is_dir;
 };
 
 struct node_info* node_info_create();

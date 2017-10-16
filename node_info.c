@@ -19,6 +19,7 @@ struct node_info* node_info_create() {
     node_info->occ_size = 0;
     node_info->depth = 0;
     node_info->id = next_node_id;
+    node_info->is_dir = false;
     next_node_id++;
     return node_info;
 }
