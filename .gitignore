@@ -1,5 +1,5 @@
-*.o
-main
-*.swp
-z-*
+src/*.o
+src/dudumper
+**/*.swp
+**/z-*
 

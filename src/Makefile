@@ -1,3 +1,11 @@
+all: dudumper
+
+clean:
+	rm -rf dudumper main.o node_info.o node_parser.o node_parser_json.o node_parser_sqlite.o str_utils.o string_dumper_file.o string_dumper_stdout.o
+
+dudumper: main.o node_info.o node_parser.o node_parser_json.o node_parser_sqlite.o str_utils.o string_dumper_file.o string_dumper_stdout.o
+	gcc -o dudumper main.o node_info.o node_parser.o node_parser_json.o node_parser_sqlite.o str_utils.o string_dumper_file.o string_dumper_stdout.o
+
 main.o: main.c node_info.h node_parser.h node_parser_json.h node_parser_sqlite.h str_utils.h string_dumper_file.h string_dumper_stdout.h
 	gcc -o main.o -c main.c
 
@@ -22,19 +30,12 @@ string_dumper_file.o: string_dumper_file.c string_dumper_file.h string_dumper.h 
 string_dumper_stdout.o: string_dumper_stdout.c string_dumper_stdout.h string_dumper.h str_utils.h
 	gcc -o string_dumper_stdout.o -c string_dumper_stdout.c
 
-main: main.o node_info.o node_parser.o node_parser_json.o node_parser_sqlite.o str_utils.o string_dumper_file.o string_dumper_stdout.o
-	gcc -o main main.o node_info.o node_parser.o node_parser_json.o node_parser_sqlite.o str_utils.o string_dumper_file.o string_dumper_stdout.o
+run: dudumper
+	./dudumper --json --dir /usr/share --out z-usr-share
 
-clean:
-	rm -rf main main.o node_info.o node_parser.o node_parser_json.o node_parser_sqlite.o str_utils.o string_dumper_file.o string_dumper_stdout.o
-
-
-run: main
-	./main /usr/share
-
-runp: main
-	./main .
+runp: dudumper
+	./dudumper --json --dir .
 
 g: main
-	gdb ./main .
+	gdb ./dudumper .
 
