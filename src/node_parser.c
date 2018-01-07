@@ -68,12 +68,14 @@ void dump_node_paths() {
 }
 
 void dump_node(struct node_info* node_info_item, bool recurse) {
-    node_parser_data->node_parser->on_node_display(node_parser_data->node_parser, node_info_item);
-    if (recurse) {
-        struct node_info *child = node_info_item->first_child;
-        while (child != NULL) {
-            dump_node(child, recurse);
-            child = child->next;
+    if (node_parser_data->node_parser->depth == 0 || node_parser_data->node_parser->depth >= node_info_item->depth) {
+        node_parser_data->node_parser->on_node_display(node_parser_data->node_parser, node_info_item);
+        if (recurse) {
+            struct node_info *child = node_info_item->first_child;
+            while (child != NULL) {
+                dump_node(child, recurse);
+                child = child->next;
+            }
         }
     }
 }

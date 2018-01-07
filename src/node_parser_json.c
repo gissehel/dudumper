@@ -27,8 +27,8 @@ void on_node_parser_stop_json(const struct node_parser* node_parser) {
 }
 
 void on_node_display_json(const struct node_parser* node_parser, struct node_info* node_info_item) {
-    char* name = quotestrdup_backquote(node_info_item->name);
-    char* path = quotestrdup_backquote(node_info_item->path);
+    char* name = doublequotestrdup_backquote(node_info_item->name);
+    char* path = doublequotestrdup_backquote(node_info_item->path);
     struct string_dumper* string_dumper = ((struct node_parser_json*)node_parser)->string_dumper;
     if (string_dumper != NULL) {
         string_dumper->dump(
@@ -57,6 +57,7 @@ void node_parser_json_dispose(struct node_parser* node_parser) {
 
 struct node_parser* node_parser_json_create(struct string_dumper* string_dumper) {
     struct node_parser_json* node_parser = malloc(sizeof(struct node_parser_json));
+    node_parser->parent.depth = 0;
     node_parser->parent.on_node_parser_start = on_node_parser_start_json;
     node_parser->parent.on_node_parser_stop = on_node_parser_stop_json;
     node_parser->parent.on_node_display = on_node_display_json;

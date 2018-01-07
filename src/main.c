@@ -26,6 +26,7 @@ int main(int argc, char** argv) {
     char* buffer_output_filename = NULL;
     bool use_json = false;
     bool use_sqlite = false;
+    long max_depth = 0;
 
 
     if (argc < 2) {
@@ -41,15 +42,19 @@ int main(int argc, char** argv) {
                 arg_index++;
                 if (arg_index<argc) {
                     path = argv[arg_index];
+                    is_parsed = 1;
+                } else {
+                    arg_index--;
                 }
-                is_parsed = 1;
             }
             if (strcmp("--out", argv[arg_index])==0) {
                 arg_index++;
                 if (arg_index<argc) {
                     output_filename = argv[arg_index];
+                    is_parsed = 1;
+                } else {
+                    arg_index--;
                 }
-                is_parsed = 1;
             }
             if (strcmp("--json", argv[arg_index])==0) {
                 use_json = true;
@@ -59,6 +64,17 @@ int main(int argc, char** argv) {
                 use_sqlite = true;
                 is_parsed = 1;
             }
+            if (strcmp("--depth", argv[arg_index])==0) {
+                arg_index++;
+                if (arg_index<argc) {
+                    max_depth = strtol(argv[arg_index], NULL, 10);
+                    is_parsed = 1;
+                } else {
+                    arg_index--;
+                }
+            }
+
+
             if (! is_parsed) {
                 printf("Don't understand [%s]\n", argv[arg_index]);
                 is_error = 1;
@@ -100,6 +116,8 @@ int main(int argc, char** argv) {
         printf("Don't know what to do...\n");
         return 1;
     }
+
+    node_parser->depth = max_depth;
 
     node_parser_parse(node_parser, path);
 

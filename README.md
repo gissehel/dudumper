@@ -15,14 +15,16 @@ still not storing everything in memory.
 as `--help` is not supported right now, the usage is on this page only.
 
 ```
-dudumper [--out FILENAME] [--dir .] (--json|--sqlite)
+dudumper [--out FILENAME] [--dir .] [--depth MAX_DEPTH_TO_OUTPUT] (--json|--sqlite)
 ```
 
 # Example
 
 ```
-./dudumper --out z-output --dir . --sqlite
+./dudumper --out z-output --dir . --depth 4 --sqlite
 ```
 
-will produce a file `z-output.sql` with the content of all files in the `.` directory.
+will produce a file `z-output.sql` with the content of all files in the `.` directory, 
+and will only write fields with depth <= 4.
+
 

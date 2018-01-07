@@ -5,6 +5,7 @@ struct node_info;
 struct node_parser_data;
 
 struct node_parser {
+    long depth;
     void (*on_node_parser_start)(const struct node_parser* node_parser);
     void (*on_node_parser_stop)(const struct node_parser* node_parser);
     void (*on_node_display)(const struct node_parser* node_parser, struct node_info* node_info_item);

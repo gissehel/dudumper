@@ -51,6 +51,7 @@ void node_parser_sqlite_dispose(struct node_parser* node_parser) {
 
 struct node_parser* node_parser_sqlite_create(struct string_dumper* string_dumper) {
     struct node_parser_sqlite* node_parser_sqlite = malloc(sizeof(struct node_parser_sqlite));
+    node_parser_sqlite->parent.depth = 0;
     node_parser_sqlite->parent.on_node_parser_start = on_node_parser_start_sqlite;
     node_parser_sqlite->parent.on_node_parser_stop = on_node_parser_stop_sqlite;
     node_parser_sqlite->parent.on_node_display = on_node_display_sqlite;
