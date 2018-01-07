@@ -31,7 +31,17 @@ void on_node_display_json(const struct node_parser* node_parser, struct node_inf
     char* path = quotestrdup_backquote(node_info_item->path);
     struct string_dumper* string_dumper = ((struct node_parser_json*)node_parser)->string_dumper;
     if (string_dumper != NULL) {
-        string_dumper->dump(string_dumper, "{'id':%ld, 'name':'%s', 'path':'%s', 'depth':%ld, 'parent_id':%ld, 'size':%ld, 'occ_size':%ld, 'is_dir':%s},\n",  node_info_item->id, name, path, node_info_item->depth, node_info_item->parent == NULL ? 0 : node_info_item->parent->id, node_info_item->size, node_info_item->occ_size, node_info_item->is_dir ? "true" : "false");
+        string_dumper->dump(
+            string_dumper, 
+            "{\"id\":%ld, \"name\":\"%s\", \"path\":\"%s\", \"depth\":%ld, \"parent_id\":%ld, \"size\":%ld, \"occ_size\":%ld, \"is_dir\":%s},\n",  
+            node_info_item->id, 
+            name, 
+            path, 
+            node_info_item->depth, 
+            node_info_item->parent == NULL ? 0 : node_info_item->parent->id, node_info_item->size, 
+            node_info_item->occ_size, 
+            node_info_item->is_dir ? "true" : "false"
+        );
     }
     free(name);
     free(path);
