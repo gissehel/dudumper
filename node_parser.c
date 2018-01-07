@@ -13,8 +13,14 @@
 #include "node_info.h"
 
 struct stat st_stat_buf;
-static struct node_parser_data* node_parser_data;
 
+struct node_parser_data {
+    struct node_info* node_info_root;
+    struct node_info* node_info_last;
+    const struct node_parser* node_parser;
+};
+
+static struct node_parser_data* node_parser_data;
 
 #define stat_buf (&st_stat_buf)
 void dump_node(struct node_info* node_info_item, bool recurse);
@@ -56,13 +62,13 @@ char* get_path_name(const char* parent, const char* path) {
 void dump_node_paths() {
     struct node_info* node_info = node_parser_data->node_info_last;
     while (node_info != NULL) {
-        node_parser_data->output->on_node_display(node_info);
+        node_parser_data->node_parser->on_node_display(node_parser_data->node_parser, node_info);
         node_info = node_info->parent;
     }
 }
 
 void dump_node(struct node_info* node_info_item, bool recurse) {
-    node_parser_data->output->on_node_display(node_info_item);
+    node_parser_data->node_parser->on_node_display(node_parser_data->node_parser, node_info_item);
     if (recurse) {
         struct node_info *child = node_info_item->first_child;
         while (child != NULL) {
@@ -132,28 +138,20 @@ int on_file_item(const char* fpath, const struct stat *sb, int typeflag, struct 
 }
 
 
-void node_parse(struct node_parser_output* output, const char* path) {
-    node_parser_data = node_parser_data_create(output);
-    node_parser_data->output->on_node_parser_start();
+void node_parser_parse(struct node_parser* node_parser, const char* path) {
+    node_parser_data = node_parser_data_create(node_parser);
+    node_parser_data->node_parser->on_node_parser_start(node_parser_data->node_parser);
     nftw(path, on_file_item, 200, 0);
     node_info_release_all();
-    node_parser_data->output->on_node_parser_stop();
+    node_parser_data->node_parser->on_node_parser_stop(node_parser_data->node_parser);
 }
 
 
-struct node_parser_output* node_parser_output_create() {
-    struct node_parser_output* output = malloc(sizeof(struct node_parser_output()));
-    output->on_node_parser_start = NULL;
-    output->on_node_parser_stop = NULL;
-    output->on_node_display = NULL;
-    return output;
-}
-
-struct node_parser_data* node_parser_data_create(const struct node_parser_output* node_parser_output) {
+struct node_parser_data* node_parser_data_create(const struct node_parser* node_parser) {
     struct node_parser_data* node_parser_data = malloc(sizeof(struct node_parser_data()));
     node_parser_data->node_info_root = NULL;
     node_parser_data->node_info_last = NULL;
-    node_parser_data->output = node_parser_output;
+    node_parser_data->node_parser = node_parser;
     return node_parser_data;
 }
 

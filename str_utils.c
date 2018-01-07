@@ -1,7 +1,8 @@
-#include "str_utils.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "str_utils.h"
 
 int __needsquotes(const char* s, int* quotelen) {
     int len = strlen(s);
