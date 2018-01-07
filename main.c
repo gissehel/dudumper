@@ -33,25 +33,39 @@ int main(int argc, char** argv) {
         path = ".";
     } else {
         int arg_index;
-        for (arg_index = 0;arg_index<argc;arg_index++) {
+        bool is_error = 0;
+
+        for (arg_index = 1;arg_index<argc;arg_index++) {
+            bool is_parsed = 0;
             if (strcmp("--dir", argv[arg_index])==0) {
                 arg_index++;
                 if (arg_index<argc) {
                     path = argv[arg_index];
                 }
+                is_parsed = 1;
             }
             if (strcmp("--out", argv[arg_index])==0) {
                 arg_index++;
                 if (arg_index<argc) {
                     output_filename = argv[arg_index];
                 }
+                is_parsed = 1;
             }
             if (strcmp("--json", argv[arg_index])==0) {
                 use_json = true;
+                is_parsed = 1;
             }
             if (strcmp("--sqlite", argv[arg_index])==0) {
                 use_sqlite = true;
+                is_parsed = 1;
             }
+            if (! is_parsed) {
+                printf("Don't understand [%s]\n", argv[arg_index]);
+                is_error = 1;
+            }
+        }
+        if (is_error) {
+            return 1;
         }
     }
 
@@ -64,9 +78,6 @@ int main(int argc, char** argv) {
             buffer_output_filename = append_extension(output_filename, "json");
         } else if (use_sqlite) {
             buffer_output_filename = append_extension(output_filename, "sql");
-        } else {
-            printf("Don't know what to do...\n");
-            return 1;
         }
     }
 
@@ -85,6 +96,9 @@ int main(int argc, char** argv) {
         node_parser = node_parser_json_create( string_dumper );
     } else if (use_sqlite) {
         node_parser = node_parser_sqlite_create( string_dumper );
+    } else {
+        printf("Don't know what to do...\n");
+        return 1;
     }
 
     node_parser_parse(node_parser, path);
