@@ -7,7 +7,7 @@
 #include "string_dumper.h"
 #include "string_dumper_stdout.h"
 
-void string_dumper_stdout_dump(struct string_dumper* string_dumper, const char *format, ... ) {
+void string_dumper_stdout_dump(const struct string_dumper* string_dumper, const char *format, ... ) {
     va_list arglist;
 
     va_start( arglist, format );

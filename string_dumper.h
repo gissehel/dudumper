@@ -3,7 +3,7 @@
 
 
 struct string_dumper {
-    void (*dump)(struct string_dumper* string_dumper, const char *format, ... );
+    void (*dump)(const struct string_dumper* string_dumper, const char *format, ... );
     void (*close)(struct string_dumper* string_dumper);
 };
 
