@@ -73,7 +73,7 @@ struct node_parser_output* get_node_display_json() {
 
 int main(int argc, char** argv) {
     char* path;
-    if (argc < 1) {
+    if (argc < 2) {
         path = ".";
     } else {
         path = argv[1];
