@@ -53,10 +53,6 @@ bool is_sub_path(const char* value, const char* pattern) {
 }
 
 char* get_path_name(const char* parent, const char* path) {
-    /*
-    printf("    z : [%s]\n", parent);
-    printf("    y : [%s]\n", path);
-    */
     return mem_strdup(path+strlen(parent)+1);
 }
 
@@ -140,6 +136,13 @@ int on_file_item(const char* fpath, const struct stat *sb, int typeflag, struct 
     return 0;
 }
 
+struct node_parser_data* node_parser_data_create(const struct node_parser* node_parser) {
+    struct node_parser_data* node_parser_data = mem_alloc(sizeof(struct node_parser_data));
+    node_parser_data->node_info_root = NULL;
+    node_parser_data->node_info_last = NULL;
+    node_parser_data->node_parser = node_parser;
+    return node_parser_data;
+}
 
 void node_parser_parse(struct node_parser* node_parser, const char* path) {
     node_parser_data = node_parser_data_create(node_parser);
@@ -148,15 +151,6 @@ void node_parser_parse(struct node_parser* node_parser, const char* path) {
     node_info_release_all();
     node_parser_data->node_parser->on_node_parser_stop(node_parser_data->node_parser);
     mem_free(node_parser_data);
-}
-
-
-struct node_parser_data* node_parser_data_create(const struct node_parser* node_parser) {
-    struct node_parser_data* node_parser_data = mem_alloc(sizeof(struct node_parser_data()));
-    node_parser_data->node_info_root = NULL;
-    node_parser_data->node_info_last = NULL;
-    node_parser_data->node_parser = node_parser;
-    return node_parser_data;
 }
 
 void node_parser_free(struct node_parser* node_parser) {
