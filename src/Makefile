@@ -1,6 +1,6 @@
 CC = gcc
 LINK = gcc
-CFLAGS = -DDEBUG
+CFLAGS = 
 LFLAGS = -static
 
 all: dudumper
