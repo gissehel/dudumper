@@ -6,13 +6,15 @@
 #include "node_parser.h"
 #include "node_parser_json.h"
 #include "node_parser_sqlite.h"
+#include "mem_utils.h"
 #include "str_utils.h"
+#include "string_dumper.h"
 #include "string_dumper_file.h"
 #include "string_dumper_stdout.h"
 
 char* append_extension(const char* base_filename, const char* extension) {
     int bufferlen = strlen(base_filename)+strlen(extension)+1+1;
-    char* buffer = malloc(sizeof(char)*bufferlen);
+    char* buffer = mem_alloc(sizeof(char)*bufferlen);
     snprintf(buffer, bufferlen, "%s.%s", base_filename, extension);
     return buffer;
 }
@@ -104,7 +106,7 @@ int main(int argc, char** argv) {
     }
 
     if (buffer_output_filename != NULL) {
-        free(buffer_output_filename);
+        mem_free(buffer_output_filename);
     }
 
 
@@ -121,7 +123,11 @@ int main(int argc, char** argv) {
 
     node_parser_parse(node_parser, path);
 
-    node_parser->dispose(node_parser);
+    node_parser_free(node_parser);
+    node_parser = NULL;
+
+    string_dumper_free(string_dumper);
+    string_dumper = NULL;
 
     return 0;
 }

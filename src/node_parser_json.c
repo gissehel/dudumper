@@ -5,6 +5,7 @@
 #include "string_dumper.h"
 #include "node_parser_json.h"
 #include "str_utils.h"
+#include "mem_utils.h"
 
 struct node_parser_json {
     struct node_parser parent;
@@ -43,8 +44,8 @@ void on_node_display_json(const struct node_parser* node_parser, struct node_inf
             node_info_item->is_dir ? "true" : "false"
         );
     }
-    free(name);
-    free(path);
+    mem_free(name);
+    mem_free(path);
 }
 
 void node_parser_json_dispose(struct node_parser* node_parser) {
@@ -56,7 +57,7 @@ void node_parser_json_dispose(struct node_parser* node_parser) {
 }
 
 struct node_parser* node_parser_json_create(struct string_dumper* string_dumper) {
-    struct node_parser_json* node_parser = malloc(sizeof(struct node_parser_json));
+    struct node_parser_json* node_parser = mem_alloc(sizeof(struct node_parser_json));
     node_parser->parent.depth = 0;
     node_parser->parent.on_node_parser_start = on_node_parser_start_json;
     node_parser->parent.on_node_parser_stop = on_node_parser_stop_json;

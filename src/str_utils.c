@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "str_utils.h"
+#include "mem_utils.h"
 
 int __needsquotes(const char* s, int* quotelen) {
     int len = strlen(s);
@@ -26,10 +27,10 @@ char* quotestrdup_sql(const char *value) {
     const char* t;
 
     if(__needsquotes(value, &quotelen) == 0) {
-        return strdup(value);
+        return mem_strdup(value);
     }
 
-    ret = malloc(quotelen+1);
+    ret = mem_alloc(quotelen+1);
     if(ret == NULL) {
         return NULL;
     }
@@ -53,10 +54,10 @@ char* quotestrdup_backquote(const char *value) {
     const char* t;
 
     if(__needsquotes(value, &quotelen) == 0) {
-        return strdup(value);
+        return mem_strdup(value);
     }
 	
-    ret = malloc(quotelen+1);
+    ret = mem_alloc(quotelen+1);
     if(ret == NULL) {
         return NULL;
     }
@@ -80,10 +81,10 @@ char* doublequotestrdup_backquote(const char *value) {
     const char* t;
 
     if(__needsquotes(value, &quotelen) == 0) {
-        return strdup(value);
+        return mem_strdup(value);
     }
 	
-    ret = malloc(quotelen+1);
+    ret = mem_alloc(quotelen+1);
     if(ret == NULL) {
         return NULL;
     }

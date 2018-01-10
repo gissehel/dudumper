@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "str_utils.h"
+#include "mem_utils.h"
 #include "string_dumper.h"
 #include "string_dumper_file.h"
 
@@ -32,7 +33,7 @@ void string_dumper_file_close(struct string_dumper* string_dumper) {
 }
 
 struct string_dumper* string_dumper_file_create(const char* filename) {
-    struct string_dumper_file* result = malloc(sizeof(struct string_dumper_file()));
+    struct string_dumper_file* result = mem_alloc(sizeof(struct string_dumper_file()));
     result->handle = fopen(filename, "wb");
     result->parent.dump = string_dumper_file_dump;
     result->parent.close = string_dumper_file_close;

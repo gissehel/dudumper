@@ -15,5 +15,6 @@ struct node_parser {
 
 void node_parser_parse(struct node_parser* node_parser, const char* path);
 struct node_parser_data* node_parser_data_create(const struct node_parser*);
+void node_parser_free(struct node_parser* node_parser);
 
 #endif /* __NODE_PARSER_H */

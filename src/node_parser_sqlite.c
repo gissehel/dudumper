@@ -5,6 +5,7 @@
 #include "string_dumper.h"
 #include "node_parser_sqlite.h"
 #include "str_utils.h"
+#include "mem_utils.h"
 
 struct node_parser_sqlite {
     struct node_parser parent;
@@ -37,8 +38,8 @@ void on_node_display_sqlite(const struct node_parser* node_parser, struct node_i
     if (string_dumper != NULL) {
         string_dumper->dump(string_dumper, "INSERT INTO Files (id, name, path, depth, parent_id, size, occ_size, is_dir) VALUES (%ld, '%s', '%s', %ld, %ld, %ld, %ld, %s);\n",  node_info_item->id, name, path, node_info_item->depth, node_info_item->parent == NULL ? 0 : node_info_item->parent->id, node_info_item->size, node_info_item->occ_size, node_info_item->is_dir ? "1" : "0");
     }
-    free(name);
-    free(path);
+    mem_free(name);
+    mem_free(path);
 }
 
 void node_parser_sqlite_dispose(struct node_parser* node_parser) {
@@ -50,7 +51,7 @@ void node_parser_sqlite_dispose(struct node_parser* node_parser) {
 }
 
 struct node_parser* node_parser_sqlite_create(struct string_dumper* string_dumper) {
-    struct node_parser_sqlite* node_parser_sqlite = malloc(sizeof(struct node_parser_sqlite));
+    struct node_parser_sqlite* node_parser_sqlite = mem_alloc(sizeof(struct node_parser_sqlite));
     node_parser_sqlite->parent.depth = 0;
     node_parser_sqlite->parent.on_node_parser_start = on_node_parser_start_sqlite;
     node_parser_sqlite->parent.on_node_parser_stop = on_node_parser_stop_sqlite;

@@ -2,12 +2,13 @@
 #include <string.h>
 #include <stdio.h>
 #include "node_info.h"
+#include "mem_utils.h"
 
 long next_node_id = 1;
 
 struct node_info* node_info_create() {
     struct node_info* node_info;
-    node_info = malloc(sizeof(struct node_info));
+    node_info = mem_alloc(sizeof(struct node_info));
     node_info->parent = NULL;
     node_info->first_child = NULL;
     node_info->last_child = NULL;
@@ -28,8 +29,8 @@ struct node_info* node_info_create_from_parent(struct node_info* parent, const c
     struct node_info* node_info;
     node_info = node_info_create();
     node_info->parent = parent;
-    node_info->path = strdup(path);
-    node_info->name = strdup(name);
+    node_info->path = mem_strdup(path);
+    node_info->name = mem_strdup(name);
     
 
     if (parent != NULL) {
@@ -91,13 +92,13 @@ void node_info_free(struct node_info* node_info) {
         }
     }
     if (node_info->path != NULL) {
-        free(node_info->path);
+        mem_free(node_info->path);
         node_info->path = NULL;
     }
     if (node_info->name != NULL) {
-        free(node_info->name);
+        mem_free(node_info->name);
         node_info->name = NULL;
     }
-    free(node_info);
+    mem_free(node_info);
 }
 
