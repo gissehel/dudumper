@@ -92,11 +92,11 @@ squarify = ($elem, size, items, value_total, is_first_level) =>
                         sizes:lane_sizes
                         len:len
                     }
-                
+
             current_index += 1
         lanes.push best_lane
         base_index = best_index+1
-    
+
     x = 0
     for lane in lanes
         y = 0
@@ -118,7 +118,7 @@ squarify = ($elem, size, items, value_total, is_first_level) =>
                 y += h
                 $newelem.attr('x-data-path',item.path)
                 $elem.append $newelem
-            
+
                 # Gotcha: here, a function should be called, not directly $newelem.hover as item.path will always get the last version of item, not the correct one
                 add_hover $newelem, item
                 if (item.is_dir) and (item.children != undefined) and (item.children.length > 0) and (item.depth <= items_struct.current.depth + items_struct.depth)
@@ -129,7 +129,7 @@ squarify = ($elem, size, items, value_total, is_first_level) =>
         x += len
 
 type_finder_struct =
-    extension: 
+    extension:
         "~"         : 'tmp'
         "bak"       : 'tmp'
         "svn-base"  : 'tmp'
@@ -151,7 +151,7 @@ type_finder_struct =
         "pug"       : 'dev'
         "styl"      : 'dev'
         "css"       : 'dev'
-        
+
         "o"         : 'compiled'
         "lo"        : 'compiled'
         "Po"        : 'compiled'
@@ -163,33 +163,33 @@ type_finder_struct =
         "a"         : 'compiled'
         "rpm"       : 'compiled'
         "pyc"       : 'compiled'
-        
-        "tar.bz2"   : 'compress' 
-        "tar.gz"    : 'compress' 
-        "tgz"       : 'compress' 
-        "bz2"       : 'compress' 
-        "bz"        : 'compress' 
-        "gz"        : 'compress' 
-        "html"      : 'document' 
-        "htm"       : 'document' 
-        "txt"       : 'document' 
-        "doc"       : 'document' 
-        "png"       : 'image'    
-        "jpg"       : 'image'    
-        "jpeg"      : 'image'    
-        "gif"       : 'image'    
-        "tif"       : 'image'    
-        "tiff"      : 'image'    
-        "bmp"       : 'image'    
-        "xpm"       : 'image'    
-        "tga"       : 'image'    
-        "svg"       : 'image'    
-        "wav"       : 'sound'    
-        "mp3"       : 'sound'    
-        "avi"       : 'movie'    
-        "mov"       : 'movie'    
-        "mpg"       : 'movie'    
-        "mpeg"      : 'movie'    
+
+        "tar.bz2"   : 'compress'
+        "tar.gz"    : 'compress'
+        "tgz"       : 'compress'
+        "bz2"       : 'compress'
+        "bz"        : 'compress'
+        "gz"        : 'compress'
+        "html"      : 'document'
+        "htm"       : 'document'
+        "txt"       : 'document'
+        "doc"       : 'document'
+        "png"       : 'image'
+        "jpg"       : 'image'
+        "jpeg"      : 'image'
+        "gif"       : 'image'
+        "tif"       : 'image'
+        "tiff"      : 'image'
+        "bmp"       : 'image'
+        "xpm"       : 'image'
+        "tga"       : 'image'
+        "svg"       : 'image'
+        "wav"       : 'sound'
+        "mp3"       : 'sound'
+        "avi"       : 'movie'
+        "mov"       : 'movie'
+        "mpg"       : 'movie'
+        "mpeg"      : 'movie'
         "wmv"       : 'movie'
         "asf"       : 'movie'
         "ogm"       : 'movie'
@@ -250,21 +250,21 @@ apply_items = (items_struct) =>
     $root = $('#root')
     $main = $('#main')
     $location = $('#location')
-    
+
     root_size = get_size $root
     root_size[0] = 0
     root_size[1] = 0
     apply_size $main, root_size
-    
+
     if items_struct == undefined
         return
-    
+
     root_item = items_struct.current
     $location.text(root_item.path + ' : ' + numberWithCommas(root_item.value))
     squarify $main, root_size, root_item.children, undefined, true
     # $sub = $($main.children()[2])
     # squarify $sub, (get_size $sub), items.children
-    
+
 on_data = (data) =>
         data_obj = {}
         items_by_path = {}
@@ -283,7 +283,7 @@ on_data = (data) =>
                     item.color = get_color_by_type item.guessedtype
                     data_obj[item.id] = item
                     items_by_path[item.path] = item
-        
+
             for item in data
                 if item.parent_id == 0
                     item.parent = undefined
@@ -315,11 +315,11 @@ jQuery ($) =>
     items_struct = undefined
 
     data = load_data()
-    
+
     if data == "*"+get_default_data()
-        
+
         $('#location').text("Loading data...")
-    
+
         items_load_query = $.ajax
             url: './map.json'
             dataType: 'json'
@@ -338,4 +338,4 @@ jQuery ($) =>
     $(window).on 'resize', (e) =>
        apply_items items_struct
     apply_items items_struct
-    
+
