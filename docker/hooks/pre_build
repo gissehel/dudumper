@@ -1,2 +1,2 @@
 #!/bin/bash
-docker run --rm=true -v $(pwd):/data alpine:3.7 /bin/sh -c "apk update && apk add g++ make musl-dev git && mkdir /work && cd /work && git clone https://github.com/gissehel/dudumper && cd /work/dudumper/src && make clean all && strip dudumper && cp /work/dudumper/src/dudumper /data/dudumper && echo 'All is OK...'"
+docker run --rm=true -v $(pwd):/data alpine:3.7 /bin/sh -c "apk update && apk add g++ make musl-dev git curl nodejs perl && npm install -g coffeescript pug-cli stylus uglify-es && mkdir /work && cd /work && git clone https://github.com/gissehel/dudumper && cd /work/dudumper/web && make clean all && cd /work/dudumper/src && make clean all && strip dudumper && cp /work/dudumper/src/dudumper /data/dudumper && echo 'All is OK...'"
