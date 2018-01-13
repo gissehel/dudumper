@@ -18,7 +18,7 @@ void on_node_parser_start_html(const struct node_parser* node_parser) {
     struct string_dumper* string_dumper = ((struct node_parser_html*)node_parser)->string_dumper;
     struct  node_parser* node_parser_json = ((struct node_parser_html*)node_parser)->node_parser_json;
     if (string_dumper != NULL && node_parser_json != NULL) {
-        string_dumper->dump(string_dumper, node_parser_html_prefix);
+        string_dumper->dump(string_dumper, "%s", node_parser_html_prefix);
         node_parser_json->on_node_parser_start(node_parser_json);
     }
 }
@@ -28,7 +28,7 @@ void on_node_parser_stop_html(const struct node_parser* node_parser) {
     struct  node_parser* node_parser_json = ((struct node_parser_html*)node_parser)->node_parser_json;
     if (string_dumper != NULL && node_parser_json != NULL) {
         node_parser_json->on_node_parser_stop(node_parser_json);
-        string_dumper->dump(string_dumper, node_parser_html_suffix);
+        string_dumper->dump(string_dumper, "%s", node_parser_html_suffix);
     }
 }
 
