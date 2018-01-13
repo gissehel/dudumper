@@ -1,5 +1,12 @@
 src/*.o
 src/dudumper
+src/node_parser_html_inlude.c
 **/*.swp
 **/z-*
+web/index.html
+web/jquery.js
+web/node_parser_html_inlude.c
+web/onefile.html
+web/treemap.css
+web/treemap.js
 
