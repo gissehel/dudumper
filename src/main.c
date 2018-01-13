@@ -4,6 +4,7 @@
 
 #include "node_info.h"
 #include "node_parser.h"
+#include "node_parser_html.h"
 #include "node_parser_json.h"
 #include "node_parser_sqlite.h"
 #include "mem_utils.h"
@@ -26,13 +27,14 @@ int main(int argc, char** argv) {
 
     char* output_filename = NULL;
     char* buffer_output_filename = NULL;
+    bool use_html = false;
     bool use_json = false;
     bool use_sqlite = false;
     long max_depth = 0;
 
 
     if (argc < 2) {
-        use_json  = true;
+        use_html  = true;
         path = ".";
     } else {
         int arg_index;
@@ -57,6 +59,10 @@ int main(int argc, char** argv) {
                 } else {
                     arg_index--;
                 }
+            }
+            if (strcmp("--html", argv[arg_index])==0) {
+                use_html = true;
+                is_parsed = 1;
             }
             if (strcmp("--json", argv[arg_index])==0) {
                 use_json = true;
@@ -92,7 +98,9 @@ int main(int argc, char** argv) {
     }
 
     if (output_filename != NULL) {
-        if (use_json) {
+        if (use_html) {
+            buffer_output_filename = append_extension(output_filename, "html");
+        } else if (use_json) {
             buffer_output_filename = append_extension(output_filename, "json");
         } else if (use_sqlite) {
             buffer_output_filename = append_extension(output_filename, "sql");
@@ -110,7 +118,9 @@ int main(int argc, char** argv) {
     }
 
 
-    if (use_json) {
+    if (use_html) {
+        node_parser = node_parser_html_create( string_dumper );
+    } else if (use_json) {
         node_parser = node_parser_json_create( string_dumper );
     } else if (use_sqlite) {
         node_parser = node_parser_sqlite_create( string_dumper );
