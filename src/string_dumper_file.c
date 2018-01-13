@@ -33,7 +33,7 @@ void string_dumper_file_close(struct string_dumper* string_dumper) {
 }
 
 struct string_dumper* string_dumper_file_create(const char* filename) {
-    struct string_dumper_file* result = mem_alloc(sizeof(struct string_dumper_file()));
+    struct string_dumper_file* result = mem_alloc(sizeof(struct string_dumper_file));
     result->handle = fopen(filename, "wb");
     result->parent.dump = string_dumper_file_dump;
     result->parent.close = string_dumper_file_close;
