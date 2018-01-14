@@ -8,6 +8,7 @@
 #include <ftw.h>
 #include <string.h>
 #include <stdbool.h>
+#include <inttypes.h>
 
 #include "node_parser.h"
 #include "node_info.h"
@@ -114,8 +115,8 @@ int on_file_item(const char* fpath, const struct stat *sb, int typeflag, struct 
     struct node_info* node_info = node_info_create_from_parent(node_parser_data->node_info_last == NULL ? NULL : node_parser_data->node_info_last, fpath, name);
 
     node_info->is_dir = S_ISDIR(stat_buf->st_mode);
-    size_type size = stat_buf->st_size;
-    size_type occ_size = stat_buf->st_blksize*stat_buf->st_blocks/8;
+    uint64_t size = (uint64_t)stat_buf->st_size;
+    uint64_t occ_size = (uint64_t)(stat_buf->st_blksize)*(uint64_t)(stat_buf->st_blocks)/8;
 
     {
         struct node_info* current_node_info = node_info;

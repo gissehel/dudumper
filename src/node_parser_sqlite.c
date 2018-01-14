@@ -6,6 +6,7 @@
 #include "node_parser_sqlite.h"
 #include "str_utils.h"
 #include "mem_utils.h"
+#include <inttypes.h>
 
 struct node_parser_sqlite {
     struct node_parser parent;
@@ -36,7 +37,7 @@ void on_node_display_sqlite(const struct node_parser* node_parser, struct node_i
     char* path = quotestrdup_sql(node_info_item->path);
     struct string_dumper* string_dumper = ((struct node_parser_sqlite*)node_parser)->string_dumper;
     if (string_dumper != NULL) {
-        string_dumper->dump(string_dumper, "INSERT INTO Files (id, name, path, depth, parent_id, size, occ_size, is_dir) VALUES (%ld, '%s', '%s', %ld, %ld, %ld, %ld, %s);\n",  node_info_item->id, name, path, node_info_item->depth, node_info_item->parent == NULL ? 0 : node_info_item->parent->id, node_info_item->size, node_info_item->occ_size, node_info_item->is_dir ? "1" : "0");
+        string_dumper->dump(string_dumper, "INSERT INTO Files (id, name, path, depth, parent_id, size, occ_size, is_dir) VALUES (%ld, '%s', '%s', %ld, %ld, %" PRIu64 ", %" PRIu64 ", %s);\n",  node_info_item->id, name, path, node_info_item->depth, node_info_item->parent == NULL ? 0 : node_info_item->parent->id, (uint64_t)node_info_item->size, (uint64_t)node_info_item->occ_size, node_info_item->is_dir ? "1" : "0");
     }
     mem_free(name);
     mem_free(path);

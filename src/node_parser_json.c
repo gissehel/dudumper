@@ -6,6 +6,7 @@
 #include "node_parser_json.h"
 #include "str_utils.h"
 #include "mem_utils.h"
+#include <inttypes.h>
 
 struct node_parser_json {
     struct node_parser parent;
@@ -34,13 +35,14 @@ void on_node_display_json(const struct node_parser* node_parser, struct node_inf
     if (string_dumper != NULL) {
         string_dumper->dump(
             string_dumper, 
-            "{\"id\":%ld, \"name\":\"%s\", \"path\":\"%s\", \"depth\":%ld, \"parent_id\":%ld, \"size\":%ld, \"occ_size\":%ld, \"is_dir\":%s},\n",  
+            "{\"id\":%ld, \"name\":\"%s\", \"path\":\"%s\", \"depth\":%ld, \"parent_id\":%ld, \"size\":%" PRIu64 ", \"occ_size\":%" PRIu64 ", \"is_dir\":%s},\n",  
             node_info_item->id, 
             name, 
             path, 
             node_info_item->depth, 
-            node_info_item->parent == NULL ? 0 : node_info_item->parent->id, node_info_item->size, 
-            node_info_item->occ_size, 
+            node_info_item->parent == NULL ? 0 : node_info_item->parent->id,
+            (uint64_t)(node_info_item->size), 
+            (uint64_t)(node_info_item->occ_size), 
             node_info_item->is_dir ? "true" : "false"
         );
     }
