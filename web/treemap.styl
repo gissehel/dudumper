@@ -1,9 +1,26 @@
+@import url('https://fonts.googleapis.com/css?family=Open+Sans:400,600');
+
+text_height = 16px
+text_font_size = 12px
+text_count = 4
+infos_height = text_count * text_height
+
+button_height = infos_height
+button_margin = 2px
+button_padding = button_margin
+button_text_height = button_height - 2 * button_margin - 2 * button_padding
+button_font_size = 20px
+
 body
     position fixed
     top 0
     bottom 0
     left 0
     right 0
+
+standard-font()
+    font-family Calibri, 'Open Sans', sans-serif
+    font-weight 600
 
 .treemaptile
     display block
@@ -32,29 +49,37 @@ body
     right 0
 
 #infos
-    height 48px
+    height infos_height
 
 .info
-    height 16px
-    font-size 14px
+    height text_height
+    font-size text_font_size
     width 100%
+    standard-font()
 
 #labels
-    right 48px
+    right infos_height
     
 #buttons
     left auto
-    width 48px
+    width button_height
     
 .button
-    margin 2px
+    margin button_margin
     border 1px solid #bbb
     background-color #eee
     border-radius 5px
     cursor pointer
+    padding button_padding
+    text-align center
+    vertical-align middle
+    line-height button_text_height
+    font-size button_font_size
+    text-overflow ellipsis
+    standard-font()
     
 #root
-    top 48px
+    top infos_height
     background-color #444
 
     
