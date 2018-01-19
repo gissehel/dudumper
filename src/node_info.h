@@ -3,8 +3,6 @@
 #include <stdbool.h>
 #include <inttypes.h>
 
-typedef long size_type;
-
 struct node_info {
     struct node_info* parent;
     struct node_info* first_child;

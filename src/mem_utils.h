@@ -25,9 +25,14 @@ char *mem_strdup_fl(const char *s, const char* filename, long line);
 #define mem_strdup(x) strdup(x)
 
 #endif
+#define UNUSED(x) (void)(x)
 
-#define MEM_ALLOC(type) (mem_alloc(sizeof(type)))
-#define MEM_CALLOC(size, type) (mem_alloc(size * sizeof(type)))
+#define MEM_ALLOC(type) ((type *)(mem_alloc(sizeof(type))))
+#define MEM_CALLOC(size, type) ((type *)(mem_alloc(size * sizeof(type))))
+#define MEM_CALLOC_DEF_NAME(size, type, name) type* name = MEM_CALLOC(size, type)
+#define MEM_CALLOC_STRUCT(size, type) MEM_CALLOC(size, struct type)
+#define MEM_CALLOC_STRUCT_DEF_NAME(size, type, name) struct type* name = MEM_CALLOC_STRUCT(size, type)
+#define MEM_CALLOC_STRUCT_DEF(size, type) MEM_CALLOC_STRUCT_DEF_NAME(size, type, type)
 #define MEM_ALLOC_STRUCT(type) MEM_ALLOC(struct type)
 #define MEM_ALLOC_STRUCT_DEF_NAME(type, name) struct type* name = MEM_ALLOC_STRUCT(type)
 #define MEM_ALLOC_STRUCT_DEF(type) MEM_ALLOC_STRUCT_DEF_NAME(type, type)

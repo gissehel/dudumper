@@ -9,6 +9,8 @@
 #include "string_dumper_stdout.h"
 
 void string_dumper_stdout_dump(const struct string_dumper* string_dumper, const char *format, ... ) {
+    UNUSED(string_dumper);
+
     va_list arglist;
 
     va_start( arglist, format );
@@ -17,6 +19,7 @@ void string_dumper_stdout_dump(const struct string_dumper* string_dumper, const 
 }
 
 void string_dumper_stdout_close(struct string_dumper* string_dumper) {
+    UNUSED(string_dumper);
 }
 
 struct string_dumper* string_dumper_stdout_create() {

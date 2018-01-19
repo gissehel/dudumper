@@ -94,7 +94,10 @@ void node_info_release_all() {
     }
 }
 
-int on_file_item(const char* fpath, const struct stat *sb, int typeflag, struct FTW *ftwbuf) {
+int on_file_item(const char* fpath, const struct stat *sb, int typeflag, struct FTW* ftwbuf) {
+    UNUSED(sb);
+    UNUSED(typeflag);
+    UNUSED(ftwbuf);
     char* name = NULL; 
 
     while ( (node_parser_data->node_info_last != NULL) && (! is_sub_path(fpath, node_parser_data->node_info_last->path)) ) {
@@ -139,7 +142,7 @@ int on_file_item(const char* fpath, const struct stat *sb, int typeflag, struct 
 }
 
 struct node_parser_data* node_parser_data_create(const struct node_parser* node_parser) {
-    struct node_parser_data* node_parser_data = MEM_ALLOC_STRUCT(node_parser_data);
+    MEM_ALLOC_STRUCT_DEF(node_parser_data);
     node_parser_data->node_info_root = NULL;
     node_parser_data->node_info_last = NULL;
     node_parser_data->node_parser = node_parser;
