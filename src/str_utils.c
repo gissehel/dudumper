@@ -27,10 +27,10 @@ char* quotestrdup_sql(const char *value) {
     const char* t;
 
     if(__needsquotes(value, &quotelen) == 0) {
-        return mem_strdup(value);
+        return MEM_STRDUP(value);
     }
 
-    ret = mem_alloc(quotelen+1);
+    ret = MEM_CALLOC(quotelen+1, char);
     if(ret == NULL) {
         return NULL;
     }
@@ -54,10 +54,10 @@ char* quotestrdup_backquote(const char *value) {
     const char* t;
 
     if(__needsquotes(value, &quotelen) == 0) {
-        return mem_strdup(value);
+        return MEM_STRDUP(value);
     }
 	
-    ret = mem_alloc(quotelen+1);
+    ret = MEM_CALLOC(quotelen+1, char);
     if(ret == NULL) {
         return NULL;
     }
@@ -81,10 +81,10 @@ char* doublequotestrdup_backquote(const char *value) {
     const char* t;
 
     if(__needsquotes(value, &quotelen) == 0) {
-        return mem_strdup(value);
+        return MEM_STRDUP(value);
     }
 	
-    ret = mem_alloc(quotelen+1);
+    ret = MEM_CALLOC(quotelen+1, char);
     if(ret == NULL) {
         return NULL;
     }

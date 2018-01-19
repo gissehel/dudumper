@@ -15,7 +15,7 @@
 
 char* append_extension(const char* base_filename, const char* extension) {
     int bufferlen = strlen(base_filename)+strlen(extension)+1+1;
-    char* buffer = mem_alloc(sizeof(char)*bufferlen);
+    char* buffer = MEM_CALLOC(bufferlen, char);
     snprintf(buffer, bufferlen, "%s.%s", base_filename, extension);
     return buffer;
 }
@@ -114,7 +114,8 @@ int main(int argc, char** argv) {
     }
 
     if (buffer_output_filename != NULL) {
-        mem_free(buffer_output_filename);
+        MEM_FREE(buffer_output_filename);
+        buffer_output_filename = NULL;
     }
 
 

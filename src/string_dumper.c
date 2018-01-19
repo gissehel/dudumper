@@ -3,5 +3,5 @@
 
 void string_dumper_free(struct string_dumper* string_dumper) {
     string_dumper->close(string_dumper);
-    mem_free(string_dumper);
+    MEM_FREE(string_dumper);
 }

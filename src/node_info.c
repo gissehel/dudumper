@@ -7,8 +7,7 @@
 long next_node_id = 1;
 
 struct node_info* node_info_create() {
-    struct node_info* node_info;
-    node_info = mem_alloc(sizeof(struct node_info));
+    MEM_ALLOC_STRUCT_DEF(node_info);
     node_info->parent = NULL;
     node_info->first_child = NULL;
     node_info->last_child = NULL;
@@ -26,13 +25,11 @@ struct node_info* node_info_create() {
 }
 
 struct node_info* node_info_create_from_parent(struct node_info* parent, const char* path, const char* name) {
-    struct node_info* node_info;
-    node_info = node_info_create();
+    struct node_info* node_info = node_info_create();
     node_info->parent = parent;
-    node_info->path = mem_strdup(path);
-    node_info->name = mem_strdup(name);
+    node_info->path = MEM_STRDUP(path);
+    node_info->name = MEM_STRDUP(name);
     
-
     if (parent != NULL) {
         if (parent->last_child == NULL) {
             parent->first_child = node_info;
@@ -44,6 +41,7 @@ struct node_info* node_info_create_from_parent(struct node_info* parent, const c
         }
         node_info->depth = parent->depth+1;
     }
+
     return node_info;
 }
 
@@ -92,13 +90,13 @@ void node_info_free(struct node_info* node_info) {
         }
     }
     if (node_info->path != NULL) {
-        mem_free(node_info->path);
+        MEM_FREE(node_info->path);
         node_info->path = NULL;
     }
     if (node_info->name != NULL) {
-        mem_free(node_info->name);
+        MEM_FREE(node_info->name);
         node_info->name = NULL;
     }
-    mem_free(node_info);
+    MEM_FREE(node_info);
 }
 

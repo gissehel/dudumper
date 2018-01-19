@@ -20,10 +20,10 @@ void string_dumper_stdout_close(struct string_dumper* string_dumper) {
 }
 
 struct string_dumper* string_dumper_stdout_create() {
-    struct string_dumper* result = mem_alloc(sizeof(struct string_dumper));
-    result->dump = string_dumper_stdout_dump;
-    result->close = string_dumper_stdout_close;
-    return result;
+    MEM_ALLOC_STRUCT_DEF(string_dumper);
+    string_dumper->dump = string_dumper_stdout_dump;
+    string_dumper->close = string_dumper_stdout_close;
+    return string_dumper;
 }
 
 

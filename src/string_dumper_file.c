@@ -14,7 +14,7 @@ struct string_dumper_file {
 };
 
 void string_dumper_file_dump(const struct string_dumper* string_dumper, const char *format, ... ) {
-    FILE* handle = ((struct string_dumper_file*)string_dumper)->handle;
+    MEM_STRUCT_PTR_DEF(string_dumper_file, string_dumper, handle, FILE*);
     if (handle != NULL) {
         va_list arglist;
 
@@ -25,19 +25,19 @@ void string_dumper_file_dump(const struct string_dumper* string_dumper, const ch
 }
 
 void string_dumper_file_close(struct string_dumper* string_dumper) {
-    FILE* handle = ((struct string_dumper_file*)string_dumper)->handle;
+    MEM_STRUCT_PTR_DEF(string_dumper_file, string_dumper, handle, FILE*);
     if (handle != NULL) {
         fclose(handle);
     }
-    ((struct string_dumper_file*)string_dumper)->handle = NULL;
+    MEM_STRUCT_PTR(string_dumper_file, string_dumper, handle) = NULL;
 }
 
 struct string_dumper* string_dumper_file_create(const char* filename) {
-    struct string_dumper_file* result = mem_alloc(sizeof(struct string_dumper_file));
-    result->handle = fopen(filename, "wb");
-    result->parent.dump = string_dumper_file_dump;
-    result->parent.close = string_dumper_file_close;
-    return (struct string_dumper*)result;
+    MEM_ALLOC_STRUCT_DEF(string_dumper_file);
+    string_dumper_file->handle = fopen(filename, "wb");
+    string_dumper_file->parent.dump = string_dumper_file_dump;
+    string_dumper_file->parent.close = string_dumper_file_close;
+    return MEM_STRUCT_AS(string_dumper, string_dumper_file);
 }
 
 

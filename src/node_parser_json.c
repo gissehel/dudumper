@@ -15,14 +15,14 @@ struct node_parser_json {
 
 
 void on_node_parser_start_json(const struct node_parser* node_parser) {
-    struct string_dumper* string_dumper = ((struct node_parser_json*)node_parser)->string_dumper;
+    MEM_STRUCT_PTR_DEF_STRUCT(node_parser_json, node_parser, string_dumper, string_dumper);
     if (string_dumper != NULL) {
         string_dumper->dump(string_dumper, "[\n");
     }
 }
 
 void on_node_parser_stop_json(const struct node_parser* node_parser) {
-    struct string_dumper* string_dumper = ((struct node_parser_json*)node_parser)->string_dumper;
+    MEM_STRUCT_PTR_DEF_STRUCT(node_parser_json, node_parser, string_dumper, string_dumper);
     if (string_dumper != NULL) {
         string_dumper->dump(string_dumper, "{}]\n");
     }
@@ -31,7 +31,7 @@ void on_node_parser_stop_json(const struct node_parser* node_parser) {
 void on_node_display_json(const struct node_parser* node_parser, struct node_info* node_info_item) {
     char* name = doublequotestrdup_backquote(node_info_item->name);
     char* path = doublequotestrdup_backquote(node_info_item->path);
-    struct string_dumper* string_dumper = ((struct node_parser_json*)node_parser)->string_dumper;
+    MEM_STRUCT_PTR_DEF_STRUCT(node_parser_json, node_parser, string_dumper, string_dumper);
     if (string_dumper != NULL) {
         string_dumper->dump(
             string_dumper, 
@@ -46,26 +46,26 @@ void on_node_display_json(const struct node_parser* node_parser, struct node_inf
             node_info_item->is_dir ? "true" : "false"
         );
     }
-    mem_free(name);
-    mem_free(path);
+    MEM_FREE(name);
+    MEM_FREE(path);
 }
 
 void node_parser_json_dispose(struct node_parser* node_parser) {
-    struct string_dumper* string_dumper = ((struct node_parser_json*)node_parser)->string_dumper;
+    MEM_STRUCT_PTR_DEF_STRUCT(node_parser_json, node_parser, string_dumper, string_dumper);
     if (string_dumper != NULL) {
         string_dumper->close(string_dumper);
-        ((struct node_parser_json*)node_parser)->string_dumper = NULL;
+        MEM_STRUCT_PTR(node_parser_json, node_parser, string_dumper) = NULL;
     }
 }
 
 struct node_parser* node_parser_json_create(struct string_dumper* string_dumper) {
-    struct node_parser_json* node_parser = mem_alloc(sizeof(struct node_parser_json));
-    node_parser->parent.depth = 0;
-    node_parser->parent.on_node_parser_start = on_node_parser_start_json;
-    node_parser->parent.on_node_parser_stop = on_node_parser_stop_json;
-    node_parser->parent.on_node_display = on_node_display_json;
-    node_parser->parent.dispose = node_parser_json_dispose;
-    node_parser->string_dumper = string_dumper;
-    return (struct node_parser*)node_parser;
+    MEM_ALLOC_STRUCT_DEF(node_parser_json);
+    node_parser_json->parent.depth = 0;
+    node_parser_json->parent.on_node_parser_start = on_node_parser_start_json;
+    node_parser_json->parent.on_node_parser_stop = on_node_parser_stop_json;
+    node_parser_json->parent.on_node_display = on_node_display_json;
+    node_parser_json->parent.dispose = node_parser_json_dispose;
+    node_parser_json->string_dumper = string_dumper;
+    return MEM_STRUCT_AS(node_parser, node_parser_json);
 }
 
