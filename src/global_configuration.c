@@ -6,11 +6,13 @@
 
 struct global_configuration* global_configuration_create() {
     MEM_ALLOC_STRUCT_DEF(global_configuration);
+    global_configuration->self = NULL;
     global_configuration->mode = GLOBAL_CONFIGURATION_PARSER_MODE_NONE;
     global_configuration->output_filename_base = NULL;
     global_configuration->directory = NULL;
     global_configuration->parsing_error = NULL;
     global_configuration->max_depth = 0;
+    global_configuration->need_help = false;
     return global_configuration;
 }
 
@@ -29,6 +31,10 @@ void global_configuration_add_error(struct global_configuration* global_configur
 }
 
 void global_configuration_free(struct global_configuration* global_configuration) {
+    if (global_configuration->self != NULL) {
+        MEM_FREE(global_configuration->self);
+        global_configuration->self = NULL;
+    }
     if (global_configuration->output_filename_base != NULL) {
         MEM_FREE(global_configuration->output_filename_base);
         global_configuration->output_filename_base = NULL;

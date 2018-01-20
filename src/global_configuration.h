@@ -10,12 +10,14 @@ enum global_configuration_parser_mode {
 };
 
 struct global_configuration {
+    char* self;
     enum global_configuration_parser_mode mode;
     char* output_filename_base;
     char* directory;
     long max_depth;
 
     char* parsing_error;
+    bool need_help;
 };
 
 struct global_configuration* global_configuration_create();

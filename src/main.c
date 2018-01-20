@@ -25,51 +25,58 @@ char* append_extension(const char* base_filename, const char* extension) {
 int main(int argc, char** argv) {
     struct string_dumper* string_dumper = NULL;
     struct node_parser* node_parser = NULL;
-
     char* buffer_output_filename = NULL;
     struct global_configuration* global_configuration = command_line_parser_parse(argc, argv);
-
+    int result=0;
 
     if (global_configuration->parsing_error != NULL) {
         printf("%s\n", global_configuration->parsing_error);
-        return 1;
-    }
+        result = 1;
+    } else {
+        if (global_configuration->need_help) {
+            command_line_parser_get_help(global_configuration);
+            result = 0;
+        } else {
+            if (global_configuration->output_filename_base != NULL) {
+                if (global_configuration->mode == GLOBAL_CONFIGURATION_PARSER_MODE_HTML) {
+                    buffer_output_filename = append_extension(global_configuration->output_filename_base, "html");
+                } else if (global_configuration->mode == GLOBAL_CONFIGURATION_PARSER_MODE_JSON) {
+                    buffer_output_filename = append_extension(global_configuration->output_filename_base, "json");
+                } else if (global_configuration->mode == GLOBAL_CONFIGURATION_PARSER_MODE_SQLITE) {
+                    buffer_output_filename = append_extension(global_configuration->output_filename_base, "sql");
+                }
+            }
 
-    if (global_configuration->output_filename_base != NULL) {
-        if (global_configuration->mode == GLOBAL_CONFIGURATION_PARSER_MODE_HTML) {
-            buffer_output_filename = append_extension(global_configuration->output_filename_base, "html");
-        } else if (global_configuration->mode == GLOBAL_CONFIGURATION_PARSER_MODE_JSON) {
-            buffer_output_filename = append_extension(global_configuration->output_filename_base, "json");
-        } else if (global_configuration->mode == GLOBAL_CONFIGURATION_PARSER_MODE_SQLITE) {
-            buffer_output_filename = append_extension(global_configuration->output_filename_base, "sql");
+            if (buffer_output_filename == NULL) {
+                string_dumper = string_dumper_stdout_create();
+            } else {
+                string_dumper = string_dumper_file_create(buffer_output_filename);
+            }
+
+            if (buffer_output_filename != NULL) {
+                MEM_FREE(buffer_output_filename);
+                buffer_output_filename = NULL;
+            }
+
+            
+            if (global_configuration->mode == GLOBAL_CONFIGURATION_PARSER_MODE_HTML) {
+                node_parser = node_parser_html_create( string_dumper );
+            } else if (global_configuration->mode == GLOBAL_CONFIGURATION_PARSER_MODE_JSON) {
+                node_parser = node_parser_json_create( string_dumper );
+            } else if (global_configuration->mode == GLOBAL_CONFIGURATION_PARSER_MODE_SQLITE) {
+                node_parser = node_parser_sqlite_create( string_dumper );
+            } else {
+                printf("Don't know what to do...\n");
+                result = 1;
+            }
+
+            if (result == 0) {
+                node_parser->depth = global_configuration->max_depth;
+                node_parser_parse(node_parser, global_configuration->directory);
+                result = 0;
+            }
         }
     }
-
-    if (buffer_output_filename == NULL) {
-        string_dumper = string_dumper_stdout_create();
-    } else {
-        string_dumper = string_dumper_file_create(buffer_output_filename);
-    }
-
-    if (buffer_output_filename != NULL) {
-        MEM_FREE(buffer_output_filename);
-        buffer_output_filename = NULL;
-    }
-
-    
-    if (global_configuration->mode == GLOBAL_CONFIGURATION_PARSER_MODE_HTML) {
-        node_parser = node_parser_html_create( string_dumper );
-    } else if (global_configuration->mode == GLOBAL_CONFIGURATION_PARSER_MODE_JSON) {
-        node_parser = node_parser_json_create( string_dumper );
-    } else if (global_configuration->mode == GLOBAL_CONFIGURATION_PARSER_MODE_SQLITE) {
-        node_parser = node_parser_sqlite_create( string_dumper );
-    } else {
-        printf("Don't know what to do...\n");
-        return 1;
-    }
-
-    node_parser->depth = global_configuration->max_depth;
-    node_parser_parse(node_parser, global_configuration->directory);
 
     if (node_parser != NULL) {
         node_parser_free(node_parser);
@@ -86,6 +93,6 @@ int main(int argc, char** argv) {
         global_configuration = NULL;
     }
 
-    return 0;
+    return result;
 }
 
