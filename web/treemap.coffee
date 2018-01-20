@@ -213,6 +213,7 @@ jQuery ($) =>
             "doc"       : 'document'
             "xml"       : 'document'
             "pdf"       : 'document'
+            "md"        : 'document'
 
             "png"       : 'image'
             "jpg"       : 'image'
@@ -275,6 +276,8 @@ jQuery ($) =>
             "entries" : 'tmp'
             "Dockerfile" : "dev"
             "Makefile" : "dev"
+            "README" : "document"
+            "LICENSE" : "document"
 
         endswith:
             "~" : 'tmp'
