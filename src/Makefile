@@ -2,7 +2,7 @@ CC = gcc
 LINK = gcc
 CFLAGS = -Wall -Wextra
 LFLAGS = -static
-OBJS = main.o command_line_parser.o global_configuration.o node_info.o node_parser.o node_parser_html.o node_parser_html_include.o node_parser_json.o node_parser_sqlite.o str_utils.o string_dumper.o string_dumper_file.o string_dumper_stdout.o mem_utils.o
+OBJS = main.o command_line_parser.o global_configuration.o node_info.o node_info_consumer.o node_info_consumer_html.o node_info_consumer_html_include.o node_info_consumer_json.o node_info_consumer_sqlite.o node_parser.o str_utils.o string_dumper.o string_dumper_file.o string_dumper_stdout.o mem_utils.o
 
 all: dudumper
 
@@ -18,7 +18,7 @@ command_line_parser.o: command_line_parser.c command_line_parser.h global_config
 global_configuration.o: global_configuration.c global_configuration.h mem_utils.h
 	$(CC) $(CFLAGS) -o global_configuration.o -c global_configuration.c
 
-main.o: main.c command_line_parser.h global_configuration.h node_info.h node_parser.h node_parser_json.h node_parser_sqlite.h str_utils.h string_dumper_file.h string_dumper_stdout.h
+main.o: main.c command_line_parser.h global_configuration.h node_info.h node_info_consumer.h node_info_consumer_html.h node_info_consumer_json.h node_info_consumer_sqlite.h node_parser.h str_utils.h string_dumper_file.h string_dumper_stdout.h
 	$(CC) $(CFLAGS) -o main.o -c main.c
 
 mem_utils.o: mem_utils.c mem_utils.h
@@ -27,22 +27,24 @@ mem_utils.o: mem_utils.c mem_utils.h
 node_info.o: node_info.c node_info.h mem_utils.h
 	$(CC) $(CFLAGS) -o node_info.o -c node_info.c
 
+node_info_consumer.o: node_info_consumer.c node_info_consumer.h mem_utils.h
+	$(CC) $(CFLAGS) -o node_info_consumer.o -c node_info_consumer.c
+
+node_info_consumer_html.o: node_info_consumer_html.c node_info_consumer_html.h node_info_consumer_html_include.h node_info_consumer_json.h mem_utils.h node_info.h node_info_consumer.h str_utils.h string_dumper.h
+	$(CC) $(CFLAGS) -o node_info_consumer_html.o -c node_info_consumer_html.c
+
+node_info_consumer_html_include.o: node_info_consumer_html_include.c node_info_consumer_html_include.h
+	$(CC) $(CFLAGS) -o node_info_consumer_html_include.o  -c node_info_consumer_html_include.c
+
+node_info_consumer_json.o: node_info_consumer_json.c node_info_consumer_json.h mem_utils.h node_info.h node_info_consumer.h str_utils.h string_dumper.h
+	$(CC) $(CFLAGS) -o node_info_consumer_json.o -c node_info_consumer_json.c
+
+node_info_consumer_sqlite.o: node_info_consumer_sqlite.c node_info_consumer_sqlite.h mem_utils.h node_info.h node_info_consumer.h str_utils.h string_dumper.h
+	$(CC) $(CFLAGS) -o node_info_consumer_sqlite.o  -c node_info_consumer_sqlite.c
+
 node_parser.o: node_parser.c node_parser.h node_info.h mem_utils.h
 	$(CC) $(CFLAGS) -o node_parser.o -c node_parser.c
 
-node_parser_html.o: node_parser_html.c node_parser_html.h node_parser_json.h node_parser_html_include.h node_parser.h node_info.h string_dumper.h mem_utils.h
-	$(CC) $(CFLAGS) -o node_parser_html.o -c node_parser_html.c
-
-node_parser_html_include.o: node_parser_html_include.c node_parser_html_include.h
-	$(CC) $(CFLAGS) -o node_parser_html_include.o -c node_parser_html_include.c
-
-node_parser_json.o: node_parser_json.c node_parser_json.h node_parser.h node_info.h string_dumper.h str_utils.h mem_utils.h
-	$(CC) $(CFLAGS) -o node_parser_json.o -c node_parser_json.c
-
-node_parser_sqlite.o: node_parser_sqlite.c node_parser_sqlite.h node_parser.h node_info.h string_dumper.h str_utils.h mem_utils.h
-	$(CC) $(CFLAGS) -o node_parser_sqlite.o -c node_parser_sqlite.c
-
-str_utils.o: str_utils.c str_utils.h mem_utils.h
 	$(CC) $(CFLAGS) -o str_utils.o -c str_utils.c
 
 string_dumper.o: string_dumper.c string_dumper.h mem_utils.h

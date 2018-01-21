@@ -1,11 +1,11 @@
 src/*.o
 src/dudumper
-src/node_parser_html_include.c
+src/node_info_consumer_html_include.c
 **/*.swp
 **/z-*
 web/index.html
 web/jquery.js
-web/node_parser_html_include.c
+web/node_info_consumer_html_include.c
 web/onefile.html
 web/treemap.css
 web/treemap.js

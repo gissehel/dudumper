@@ -11,11 +11,16 @@
 #include <stdbool.h>
 #include <inttypes.h>
 
-#include "node_parser.h"
-#include "node_info.h"
 #include "mem_utils.h"
+#include "node_info.h"
+#include "node_info_consumer.h"
+#include "node_parser.h"
 
-struct stat st_stat_buf;
+
+struct node_parser {
+    struct node_info_consumer* node_info_consumer;
+    long depth;
+};
 
 struct node_parser_data {
     struct node_info* node_info_root;
@@ -25,7 +30,6 @@ struct node_parser_data {
 
 static struct node_parser_data* node_parser_data;
 
-#define stat_buf (&st_stat_buf)
 void dump_node(struct node_info* node_info_item, bool recurse);
 
 bool is_sub_path(const char* value, const char* pattern) {
@@ -61,16 +65,22 @@ char* get_path_name(const char* parent, const char* path) {
 void dump_node_paths() {
     struct node_info* node_info = node_parser_data->node_info_last;
     while (node_info != NULL) {
-        node_parser_data->node_parser->on_node_display(node_parser_data->node_parser, node_info);
+        MEM_STRUCT_PTR_DEF_STRUCT(node_parser, node_parser_data->node_parser, node_info_consumer, node_info_consumer);
+        if (node_info_consumer != NULL) {
+            NODE_INFO_CONSUMER_CONSUME_NODE(node_info_consumer, node_info);
+        }
         node_info = node_info->parent;
     }
 }
 
-void dump_node(struct node_info* node_info_item, bool recurse) {
-    if (node_parser_data->node_parser->depth == 0 || node_parser_data->node_parser->depth >= node_info_item->depth) {
-        node_parser_data->node_parser->on_node_display(node_parser_data->node_parser, node_info_item);
+void dump_node(struct node_info* node_info, bool recurse) {
+    if (node_parser_data->node_parser->depth == 0 || node_parser_data->node_parser->depth >= node_info->depth) {
+        MEM_STRUCT_PTR_DEF_STRUCT(node_parser, node_parser_data->node_parser, node_info_consumer, node_info_consumer);
+        if (node_info_consumer != NULL) {
+            NODE_INFO_CONSUMER_CONSUME_NODE(node_info_consumer, node_info);
+        }
         if (recurse) {
-            struct node_info *child = node_info_item->first_child;
+            struct node_info *child = node_info->first_child;
             while (child != NULL) {
                 dump_node(child, recurse);
                 child = child->next;
@@ -99,12 +109,13 @@ int on_file_item(const char* fpath, const struct stat *sb, int typeflag, struct 
     UNUSED(typeflag);
     UNUSED(ftwbuf);
     char* name = NULL; 
+    struct stat st_stat_buf;
 
     while ( (node_parser_data->node_info_last != NULL) && (! is_sub_path(fpath, node_parser_data->node_info_last->path)) ) {
         node_info_release();
     }
 
-    lstat(fpath, stat_buf);
+    lstat(fpath, &st_stat_buf);
 
     if (node_parser_data->node_info_last != NULL) {
         if (is_sub_path(fpath, node_parser_data->node_info_last->path)) {
@@ -118,9 +129,9 @@ int on_file_item(const char* fpath, const struct stat *sb, int typeflag, struct 
     
     struct node_info* node_info = node_info_create_from_parent(node_parser_data->node_info_last == NULL ? NULL : node_parser_data->node_info_last, fpath, name);
 
-    node_info->is_dir = S_ISDIR(stat_buf->st_mode);
-    uint64_t size = (uint64_t)stat_buf->st_size;
-    uint64_t occ_size = (uint64_t)(stat_buf->st_blksize)*(uint64_t)(stat_buf->st_blocks)/8;
+    node_info->is_dir = S_ISDIR(st_stat_buf.st_mode);
+    uint64_t size = (uint64_t)st_stat_buf.st_size;
+    uint64_t occ_size = (uint64_t)(st_stat_buf.st_blksize)*(uint64_t)(st_stat_buf.st_blocks)/8;
 
     {
         struct node_info* current_node_info = node_info;
@@ -153,18 +164,45 @@ void node_parser_data_free(struct node_parser_data* node_parser_data) {
     MEM_FREE(node_parser_data);
 }
 
+void node_parser_start(const struct node_parser* node_parser) {
+    MEM_STRUCT_PTR_DEF_STRUCT(node_parser, node_parser, node_info_consumer, node_info_consumer);
+    if (node_info_consumer != NULL) {
+        NODE_INFO_CONSUMER_START(node_info_consumer);
+    }
+}
+
 void node_parser_parse(struct node_parser* node_parser, const char* path) {
     node_parser_data = node_parser_data_create(node_parser);
-    node_parser_data->node_parser->on_node_parser_start(node_parser_data->node_parser);
+    node_parser_start(node_parser_data->node_parser);
     nftw(path, on_file_item, 200, FTW_PHYS);
     node_info_release_all();
-    node_parser_data->node_parser->on_node_parser_stop(node_parser_data->node_parser);
+    node_parser_stop(node_parser_data->node_parser);
     node_parser_data_free(node_parser_data);
     node_parser_data = NULL;
 }
 
+void node_parser_stop(const struct node_parser* node_parser) {
+    MEM_STRUCT_PTR_DEF_STRUCT(node_parser, node_parser, node_info_consumer, node_info_consumer);
+    if (node_info_consumer != NULL) {
+        NODE_INFO_CONSUMER_STOP(node_info_consumer);
+    }
+}
+
+struct node_parser* node_parser_create(struct node_info_consumer* node_info_consumer, long depth) {
+    MEM_ALLOC_STRUCT_DEF(node_parser);
+    node_parser->node_info_consumer = node_info_consumer;
+    node_parser->depth = depth;
+    return node_parser;
+}
+
 void node_parser_free(struct node_parser* node_parser) {
-    node_parser->dispose(node_parser);
+    MEM_STRUCT_PTR_DEF_STRUCT(node_parser, node_parser, node_info_consumer, node_info_consumer);
+    if (node_info_consumer != NULL) {
+        /*
+         * NODE_INFO_CONSUMER_DISPOSE(node_info_consumer);
+         */
+        MEM_STRUCT_PTR(node_parser, node_parser, node_info_consumer) = NULL;
+    }
     MEM_FREE(node_parser);
 }
 
