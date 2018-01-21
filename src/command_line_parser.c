@@ -87,10 +87,11 @@ void command_line_parser_get_help(struct global_configuration* global_configurat
     printf("Dump disk usage into files that can used latter to browse,\n");
     printf("display, query disk usage.\n");
     printf("\n");
-    printf("  --dir [DIRNAME]    the directory to parse\n");
-    printf("  --out [FILENAME]   the base filename to parse.\n");
+    printf("  --dir DIRNAME      the directory to parse\n");
+    printf("  --out FILENAME     the base filename to parse.\n");
     printf("                     extension will be appened based\n");
     printf("                     on file type\n");
+    printf("  --depth DEPTH      the depth to output in the dump\n");
     printf("  --sqlite           dump sqlite script\n");
     printf("  --json             dump json sctructure\n");
     printf("  --html             dump html page\n");
