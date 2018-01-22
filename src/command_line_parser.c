@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <strings.h>
 #include "command_line_parser.h"
 #include "global_configuration.h"
 #include "mem_utils.h"
