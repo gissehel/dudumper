@@ -1,2 +1,0 @@
-#!/bin/bash
-docker run --rm=true -v $(pwd):/data ubuntu /bin/bash -c "apt update && apt install -y gcc build-essential git curl perl && curl -sL https://deb.nodesource.com/setup_9.x | bash - && apt install -y nodejs && npm install -g pug-cli coffeescript stylus uglify-es && mkdir /work && cd /work && git clone https://github.com/gissehel/dudumper && cd /work/dudumper/web && make clean all && cd /work/dudumper/src && make clean all && strip dudumper && cp /work/dudumper/src/dudumper /data/dudumper && echo 'All is OK...'"
