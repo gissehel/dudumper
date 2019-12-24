@@ -27,4 +27,20 @@ dudumper [--out FILENAME] [--dir .] [--depth MAX_DEPTH_TO_OUTPUT] (--json|--sqli
 will produce a file `z-output.sql` with the content of all files in the `.` directory, 
 and will only write fields with depth <= 4.
 
+# Usage with docker
+
+Only work with x86_64, unless you replace the image name by an image you have built yourself.
+
+Support `/path/to/inputfolder` and `/path/to/outputfolder` are existing folders.
+
+```
+docker run -ti -v "/path/to/inputfolder:/data:ro" -v "/path/to/outputfolder:/tmp:rw" gissehel/dudumper --dir /data --out /tmp/inputdescription --html
+```
+
+will produce a file `/path/to/outputfolder/inputdescription.html` containing the structure of `/path/to/inputfolder`.
+
+# References
+
+* Project page: https://github.com/gissehel/dudumper
+* Docker hub project page : https://hub.docker.com/repository/docker/gissehel/dudumper
 
