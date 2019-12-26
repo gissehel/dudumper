@@ -8,5 +8,5 @@ web/jquery.js
 web/node_info_consumer_html_include.c
 web/onefile.html
 web/treemap.css
-web/treemap.js
+web/treemap.min.js
 
