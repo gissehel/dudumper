@@ -39,8 +39,37 @@ docker run -ti -v "/path/to/inputfolder:/data:ro" -v "/path/to/outputfolder:/tmp
 
 will produce a file `/path/to/outputfolder/inputdescription.html` containing the structure of `/path/to/inputfolder`.
 
+## Example
+
+Requirements:
+* Linux x86_64
+* Docker installed and working
+* Possibility to add bash functions to your environnement
+
+Add the following function to your environnement:
+
+```
+function get-path-map {
+    INPUT="$1"
+    OUTPUT="$2"
+    [ -z "${INPUT}" ] && INPUT="."
+    input_path="$(readlink -f "${INPUT}")"
+    if [ -z "${OUTPUT}" ]
+    then
+        output_path="/tmp"
+        output_file="$(echo "${input_path}" | sed -e 's/\//-/g; s/^-/dudumper-/')"
+    else
+        output_path="$(dirname "$(readlink -f "${OUTPUT}")")"
+        output_file="$(basename "${OUTPUT}")"
+    fi
+    user="$(id -u):$(id -g)"
+    docker run -ti --user "${user}" -v "${input_path}:/data:ro" -v "${output_path}:/tmp:rw" gissehel/dudumper --dir /data --out /tmp/"${output_file}" --html
+}
+```
+
+Usage: `get-path-map [INPUT_FOLDER] [OUTPUT_FILE]`
+
 # References
 
 * Project page: https://github.com/gissehel/dudumper
 * Docker hub project page : https://hub.docker.com/repository/docker/gissehel/dudumper
-
