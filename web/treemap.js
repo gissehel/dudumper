@@ -203,12 +203,12 @@ readyPromise.then(() => {
                     elem.appendChild(newelem);
                     add_hover(newelem, item, first_level_item);
                     if (item.is_dir && undefined !== item.children && item.children.length > 0 && item.depth <= items_struct.current.depth + items_struct.depth) {
-                        const action = ((elem, size, items) => {
+                        const action = ((elem, size, items, first_level_item) => {
                             do_now(() => {
                                 squarify(elem, size, items, undefined, false, first_level_item);
                             });
                         });
-                        action(newelem, get_size(newelem), item.children);
+                        action(newelem, get_size(newelem), item.children, first_level_item);
                     }
                 });
             }
@@ -477,7 +477,7 @@ readyPromise.then(() => {
                 const text = await blob.text();
                 const items = JSON.parse(text);
                 window.items = items;
-                console.log("map received", items);
+                // console.log("map received", items);
                 on_data(items)
             } catch (e) {
                 console.log("Loading map failed...");
