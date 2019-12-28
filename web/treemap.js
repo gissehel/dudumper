@@ -104,6 +104,9 @@ readyPromise.then(() => {
     window.dom = dom;
     const do_now = (callback) => setTimeout(callback, 0);
     const do_soon = (callback) => setTimeout(callback, 100);
+    const sleep = (timeout) => new Promise((resolve, reject) => {
+        setTimeout(() => resolve(), timeout);
+    });
     const positions_by_item = {};
     window.positions_by_item = positions_by_item;
     const apply_size = (size, color, isMain, path, first_level_item) => {
@@ -169,10 +172,36 @@ readyPromise.then(() => {
     };
     const get_sub_size = (size) => [size[0] + 1, size[1] + 1, size[2] - 2, size[3] - 2];
     let current_render_id = 0;
-    const squarify = (size, items, value_total, is_first_level, first_level_item, render_id) => {
-        if (current_render_id !== render_id) {
-            return;
+    const render_optimizer = {
+        delay: 10,
+        scan_delay: 300,
+        init_render: () => ({ last_time: Date.now() }),
+        check_render: (render_data) => {
+            const last_time = render_data.last_time;
+            const time = Date.now();
+            if (time - last_time > render_optimizer.scan_delay) {
+                render_data.last_time = time;
+                return true;
+            }
+            return false;
+        },
+        xcheck_render: () => false,
+        reset_time: (render_data) => {
+            render_data.last_time = Date.now();
+        },
+    }
+    const squarify = async (size, items, value_total, is_first_level, first_level_item, render_id) => {
+        await sleep(0);
+        let render_data = render_optimizer.init_render();
+        const should_not_render = () => {
+            var result = current_render_id !== render_id;
+            if (result) {
+                console.log('Should not render');
+            }
+            return result;
+
         }
+        if (should_not_render()) return;
         let base_index = 0;
         if (size[2] < 2 || size[3] < 2) {
             return;
@@ -198,11 +227,21 @@ readyPromise.then(() => {
             let value_current_index = 0;
             let current_index = base_index;
             while (current_index < items.length) {
+                if (render_optimizer.check_render(render_data)) {
+                    await sleep(render_optimizer.delay);
+                    render_optimizer.reset_time(render_data);
+                }
+                if (should_not_render()) return;
                 value_current_index += items[current_index].value;
                 const len = value_current_index * size[2 + base_direction] / value_total;
                 let worst_ratio = -1.0;
                 const lane_sizes = [];
                 for (let index = base_index; index <= current_index; index++) {
+                    if (render_optimizer.check_render(render_data)) {
+                        await sleep(render_optimizer.delay);
+                    }
+                    if (should_not_render()) return;
+
                     const h = items[index].value * size[2 + (1 - base_direction)] / value_current_index;
                     if (h !== 0 && len !== 0) {
                         let ratio;
@@ -234,12 +273,17 @@ readyPromise.then(() => {
             base_index = best_index + 1;
         }
         let x = 0;
-        lanes.forEach((lane) => {
+        for (let lane of lanes) {
             let y = 0;
             const len = lane.len;
             const sizes = lane.sizes;
             if (sizes !== undefined) {
-                sizes.forEach((size_item) => {
+                for (let size_item of sizes) {
+                    if (render_optimizer.check_render(render_data)) {
+                        await sleep(render_optimizer.delay);
+                    }
+                    if (should_not_render()) return;
+
                     const item = size_item.item;
                     const h = size_item.h;
 
@@ -255,17 +299,12 @@ readyPromise.then(() => {
                     apply_size(xsize, item.color, false, item.path, first_level_item);
                     y += h;
                     if (item.is_dir && undefined !== item.children && item.children.length > 0 && item.depth <= items_struct.current.depth + items_struct.depth) {
-                        const action = ((size, items, first_level_item) => {
-                            do_now(() => {
-                                squarify(size, items, undefined, false, first_level_item, render_id);
-                            });
-                        });
-                        action(get_sub_size(xsize), item.children, first_level_item);
+                        squarify(get_sub_size(xsize), item.children, undefined, false, first_level_item, render_id);
                     }
-                });
+                }
             }
             x += len;
-        });
+        }
     };
     const type_finder_struct = {
         extension: {
@@ -477,7 +516,7 @@ readyPromise.then(() => {
                         items_by_path: items_by_path,
                         data: item,
                         current: item,
-                        depth: 5
+                        depth: 4
                     };
                 } else {
                     if (undefined !== data_obj[item.parent_id]) {
@@ -600,8 +639,8 @@ readyPromise.then(() => {
             }
         } else {
             on_data(data);
+            apply_items(items_struct)
         };
         dom.addResizeEvent(window, (e) => apply_items(items_struct));
-        apply_items(items_struct)
     })
 });
