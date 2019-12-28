@@ -17,6 +17,8 @@ struct node_info {
     long depth;
     long id;
     bool is_dir;
+    bool should_dump;
+    bool children_should_dump;
 };
 
 struct node_info* node_info_create();

@@ -13,6 +13,7 @@ struct global_configuration* global_configuration_create() {
     global_configuration->parsing_error = NULL;
     global_configuration->max_depth = 0;
     global_configuration->need_help = false;
+    global_configuration->consider_dot_dir_as_file = true;
     return global_configuration;
 }
 

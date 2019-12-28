@@ -18,6 +18,7 @@ struct global_configuration {
 
     char* parsing_error;
     bool need_help;
+    bool consider_dot_dir_as_file;
 };
 
 struct global_configuration* global_configuration_create();

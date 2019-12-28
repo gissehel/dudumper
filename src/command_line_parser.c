@@ -59,6 +59,14 @@ struct global_configuration* command_line_parser_parse(int argc, char** argv) {
                     arg_index--;
                 }
             }
+            if (strcmp("--cddaf", argv[arg_index])==0) {
+                global_configuration->consider_dot_dir_as_file = true;
+                is_parsed = 1;
+            }
+            if (strcmp("--cddaf-", argv[arg_index])==0) {
+                global_configuration->consider_dot_dir_as_file = false;
+                is_parsed = 1;
+            }
 
             if (! is_parsed) {
                 const char* pattern = "Don't understand [%s]\n";
@@ -94,6 +102,7 @@ void command_line_parser_get_help(struct global_configuration* global_configurat
     printf("  --sqlite           dump sqlite script\n");
     printf("  --json             dump json sctructure\n");
     printf("  --html             dump html page\n");
+    printf("  --cddaf[-]         consider dot dir as file (with - to disable). (Eg: .svn, .git, .hg, etc.)\n");
     printf("  --help             display this help and exit\n");
     printf("\n");
 }

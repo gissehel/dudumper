@@ -20,6 +20,8 @@ struct node_info* node_info_create() {
     node_info->depth = 0;
     node_info->id = next_node_id;
     node_info->is_dir = false;
+    node_info->should_dump = true;
+    node_info->children_should_dump = true;
     next_node_id++;
     return node_info;
 }
