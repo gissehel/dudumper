@@ -27,7 +27,7 @@ readyPromise.then(() => {
                 element.classList.add(params.className);
             }
             if (params.classNames) {
-                params.classNames.forEach((className)=>element.classList.add(className));
+                params.classNames.forEach((className) => element.classList.add(className));
             }
             if (params.parent) {
                 params.parent.appendChild(element);
@@ -39,7 +39,11 @@ readyPromise.then(() => {
         },
         addClass: (element, className) => element.classList.add(className),
         setTextContext: (element, text) => element.textContent = text,
-        addMouseOverEvent: (element, callback) => element.addEventListener('mouseover', callback),
+        addMouseOutOverEvent: (element, callback) => {
+            element.addEventListener('mouseover', callback);
+            element.addEventListener('mouseout', callback);
+        },
+        addMouseMoveEvent: (element, callback) => element.addEventListener('mousemove', callback),
         addClickEvent: (element, callback) => element.addEventListener('click', callback),
         addResizeEvent: (element, callback) => element.addEventListener('resize', callback),
         hasClass: (element, className) => element.classList.contains(className),
@@ -50,7 +54,41 @@ readyPromise.then(() => {
             if (element) {
                 element.remove();
             }
-        }
+        },
+        get_size: (elem) => {
+            return [elem.offsetLeft, elem.offsetTop, elem.clientWidth, elem.clientHeight];
+        },
+        clear_canvas: (canvas) => {
+            const context = canvas.getContext('2d');
+            context.clearRect(0, 0, canvas.width, canvas.height);
+        },
+        set_canvas_size: (canvas, size) => {
+            dom.setStyle(canvas, 'left', size[0] + 'px');
+            dom.setStyle(canvas, 'top', size[1] + 'px');
+            dom.setStyle(canvas, 'width', size[2] + 'px');
+            dom.setStyle(canvas, 'height', size[3] + 'px');
+            dom.setStyle(canvas, 'border', 0);
+            canvas.width = size[2];
+            canvas.height = size[3];
+        },
+        context_draw_rect: (context, size, color) => {
+            let [a, b, c, d] = size;
+            context.beginPath();
+            context.strokeStyle = color;
+            context.lineWidth = 1;
+            context.rect(a, b, c, d);
+            context.stroke();
+            context.stroke();
+            context.closePath();
+        },
+        context_fill_rect: (context, size, color) => {
+            let [a, b, c, d] = size;
+            context.beginPath();
+            context.fillStyle = color;
+            context.rect(a, b, c, d);
+            context.fill();
+            context.closePath();
+        },
     }
     const elements = {
         location: document.getElementById('location'),
@@ -60,66 +98,85 @@ readyPromise.then(() => {
         root: document.getElementById('root'),
         main: document.getElementById('main'),
         up: document.getElementById('up'),
+        canvas: document.getElementById('canvas'),
     };
     window.elements = elements;
     window.dom = dom;
     const do_now = (callback) => setTimeout(callback, 0);
     const do_soon = (callback) => setTimeout(callback, 100);
-    const apply_size = (elem, size, color) => {
-        dom.setStyle(elem, 'left', size[0] + 'px');
-        dom.setStyle(elem, 'top', size[1] + 'px');
-        dom.setStyle(elem, 'width', size[2] + 'px');
-        dom.setStyle(elem, 'height', size[3] + 'px');
+    const positions_by_item = {};
+    window.positions_by_item = positions_by_item;
+    const apply_size = (size, color, isMain, path, first_level_item) => {
+        positions_by_item[path] = { size, first_level_item };
+        if (isMain) {
+            [elements.canvas, elements.canvasHover].forEach((element) => {
+                dom.set_canvas_size(element, size);
+            })
+            dom.setStyle(elements.canvasHover, 'opacity', 0.5);
+            dom.clear_canvas(elements.canvasHover);
+        }
         if (undefined !== color) {
-            dom.setStyle(elem, 'backgroundColor', color);
+            dom.context_fill_rect(elements.context, size, color);
+            dom.context_draw_rect(elements.context, size, 'rgba(0,0,0,0.1)');
         }
     };
+    const match_position = (point, size) => point[0] >= size[0] && point[0] <= size[0] + size[2] && point[1] >= size[1] && point[1] <= size[1] + size[3];
+    const search_item = (root_item, point) => {
+        let current_item = root_item;
+        let last_item = null;
+
+        while (last_item !== current_item) {
+            last_item = current_item;
+            if (current_item.children) {
+                current_item.children.forEach((child_item) => {
+                    if (child_item && child_item.path && positions_by_item[child_item.path]) {
+                        if (match_position(point, positions_by_item[child_item.path].size)) {
+                            current_item = child_item;
+                        }
+                        // console.log(`Search [${child_item.path}] => [${match}]`);
+                    }
+                })
+            }
+        }
+
+        return current_item;
+    }
     const format_number = ((x) => x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " "));
     const formatNameSize = (name, size) => `${name} : ${size}`;
     const show_item_first_level = (item) => {
-        const name = item.path;
-        const size = format_number(item.value);
-        const text = formatNameSize(name, size);
-        dom.setTextContext(elements.subdir, text);
+        if (item) {
+            const name = item.path;
+            const size = format_number(item.value);
+            const text = formatNameSize(name, size);
+            dom.setTextContext(elements.subdir, text);
+        } else {
+            dom.setTextContext(elements.subdir, '');
+        }
     };
     const show_item = (item, do_console) => {
-        const name = item.path;
-        const size = format_number(item.value);
-        if (do_console) {
-            console.log(formatNameSize(name, size));
-        };
-        dom.setTextContext(elements.name, name);
-        dom.setTextContext(elements.size, size);
+        if (item) {
+            const name = item.path;
+            const size = format_number(item.value);
+            if (do_console) {
+                console.log(formatNameSize(name, size));
+            };
+            dom.setTextContext(elements.name, name);
+            dom.setTextContext(elements.size, size);
+        } else {
+            dom.setTextContext(elements.name, '');
+            dom.setTextContext(elements.size, '');
+        }
     };
-    const add_hover = (elem, item, first_level_item) => {
-        dom.addMouseOverEvent(elem, (e) => {
-            show_item(item);
-            show_item_first_level(first_level_item);
-            e.stopPropagation();
-        });
-        dom.addClickEvent(elem, (e) => {
-            if (e.ctrlKey) {
-                let current_item = item;
-                while (undefined !== current_item && undefined !== current_item.parent && current_item.parent !== items_struct.current) {
-                    current_item = current_item.parent;
-                }
-                if (current_item.parent === items_struct.current && current_item.is_dir) {
-                    items_struct.current = current_item;
-                }
-                apply_items(items_struct);
-                e.stopPropagation();
-            } else {
-                show_item(item, true);
-                e.stopPropagation();
-            }
-        });
-    };
-    const get_size = ((elem) => {
-        return [elem.offsetLeft, elem.offsetTop, elem.clientWidth, elem.clientHeight];
-    });
-    const squarify = (elem, size, items, value_total, is_first_level, first_level_item) => {
-        dom.clear(elem);
+    const get_sub_size = (size) => [size[0] + 1, size[1] + 1, size[2] - 2, size[3] - 2];
+    let current_render_id = 0;
+    const squarify = (size, items, value_total, is_first_level, first_level_item, render_id) => {
+        if (current_render_id !== render_id) {
+            return;
+        }
         let base_index = 0;
+        if (size[2] < 2 || size[3] < 2) {
+            return;
+        }
         if (undefined === value_total) {
             value_total = 0;
         }
@@ -182,33 +239,28 @@ readyPromise.then(() => {
             const len = lane.len;
             const sizes = lane.sizes;
             if (sizes !== undefined) {
-                sizes.forEach((size) => {
-                    const item = size.item;
-                    const h = size.h;
-                    const newelem = dom.createElement({className:"treemaptile"});
+                sizes.forEach((size_item) => {
+                    const item = size_item.item;
+                    const h = size_item.h;
 
                     if (is_first_level) {
                         first_level_item = item;
-                        dom.addClass(newelem, "first_level");
                     }
                     let xsize;
                     if (base_direction === 0) {
-                        xsize = [x, y, len, h];
+                        xsize = [size[0] + x, size[1] + y, len, h];
                     } else {
-                        xsize = [y, x, h, len];
+                        xsize = [size[0] + y, size[1] + x, h, len];
                     }
-                    apply_size(newelem, xsize, item.color);
+                    apply_size(xsize, item.color, false, item.path, first_level_item);
                     y += h;
-                    dom.setAttr(newelem, "x-data-path", item.path);
-                    elem.appendChild(newelem);
-                    add_hover(newelem, item, first_level_item);
                     if (item.is_dir && undefined !== item.children && item.children.length > 0 && item.depth <= items_struct.current.depth + items_struct.depth) {
-                        const action = ((elem, size, items, first_level_item) => {
+                        const action = ((size, items, first_level_item) => {
                             do_now(() => {
-                                squarify(elem, size, items, undefined, false, first_level_item);
+                                squarify(size, items, undefined, false, first_level_item, render_id);
                             });
                         });
-                        action(newelem, get_size(newelem), item.children, first_level_item);
+                        action(get_sub_size(xsize), item.children, first_level_item);
                     }
                 });
             }
@@ -385,16 +437,18 @@ readyPromise.then(() => {
     const get_color_by_type = (name => color_by_type_struct[name]);
     const setStatus = (text) => dom.setTextContext(elements.location, text);
     const apply_items = ((items_struct) => {
-        const root_size = get_size(elements.root);
+        const root_size = dom.get_size(elements.root);
         root_size[0] = 0;
         root_size[1] = 0;
-        apply_size(elements.main, root_size);
         if (undefined === items_struct) {
             return;
         }
         const root_item = items_struct.current;
+        Object.keys(positions_by_item).forEach(key => delete positions_by_item[key]);
+        current_render_id += 1;
+        apply_size(root_size, null, true, root_item.path, null);
         setStatus(`${root_item.path} : ${format_number(root_item.value)}`);
-        squarify(elements.main, root_size, root_item.children, undefined, true, null);
+        squarify(root_size, root_item.children, undefined, true, null, current_render_id);
     });
     const on_data = ((data) => {
         var data_obj, items_by_path;
@@ -423,7 +477,7 @@ readyPromise.then(() => {
                         items_by_path: items_by_path,
                         data: item,
                         current: item,
-                        depth: 4
+                        depth: 5
                     };
                 } else {
                     if (undefined !== data_obj[item.parent_id]) {
@@ -442,20 +496,72 @@ readyPromise.then(() => {
             apply_items(items_struct);
         })
     });
+    let current_first_level_item = null;
+    const on_hover = (e) => {
+        const point = [e.offsetX, e.offsetY];
+        const item = search_item(items_struct.current, point);
+        if (item !== null && e.type !== 'mouseout') {
+            const path = item.path;
+            let first_level_item = null;
+            if (path && positions_by_item[path] && positions_by_item[path].first_level_item) {
+                first_level_item = positions_by_item[path].first_level_item;
+            }
+            if (current_first_level_item !== first_level_item) {
+                current_first_level_item = first_level_item;
+                show_item_first_level(current_first_level_item);
+                dom.clear_canvas(elements.canvasHover);
+                if (e.type !== 'mouseout' && items_struct && items_struct.current && items_struct.current.children) {
+                    items_struct.current.children.forEach((child_item) => {
+                        if (child_item.path !== current_first_level_item.path) {
+                            if (positions_by_item[child_item.path]) {
+                                dom.context_fill_rect(elements.contextHover, positions_by_item[child_item.path].size, 'black');
+                            }
+                        }
+                    })
+                }
+            }
+            show_item(item);
+        } else {
+            dom.clear_canvas(elements.canvasHover);
+            current_first_level_item = null;
+            show_item(null);
+            show_item_first_level(null);
+        }
+
+
+    }
+    const on_click = (e) => {
+        const point = [e.offsetX, e.offsetY];
+        const item = search_item(items_struct.current, point);
+        if (e.ctrlKey) {
+            const path = item.path;
+            if (path && positions_by_item[path] && positions_by_item[path].first_level_item) {
+                const first_level_item = positions_by_item[path].first_level_item;
+                if (first_level_item.is_dir) {
+                    items_struct.current = first_level_item;
+                    apply_items(items_struct);
+                }
+            }
+        } else {
+            show_item(item, true);
+        }
+        e.stopPropagation();
+    }
     const createMainStructure = () => {
         dom.removeIfExists(document.getElementById('workspace'));
-        const workspace = dom.createElement({id:'workspace', parent: document.body});
-        const infos = dom.createElement({id:'infos', parent: workspace});
-        const labels = dom.createElement({id:'labels', parent: infos});
-        const location = dom.createElement({id:'location', parent: labels, className: 'info'});
-        const subdir = dom.createElement({id:'subdir', parent: labels, className: 'info'});
-        const name = dom.createElement({id:'name', parent: labels, className: 'info'});
-        const size = dom.createElement({id:'size', parent: labels, className: 'info'});
-        const buttons = dom.createElement({id:'buttons', parent: infos});
-        const up = dom.createElement({id:'up', parent: buttons, className:'button', text:'..'});
-        const root = dom.createElement({id:'root', parent: workspace});
-        const main = dom.createElement({id:'main', parent: root, className:'treemaptile'});
-        dom.createElement({name:'title', parent: document.head, text:'Treemap'});
+        const workspace = dom.createElement({ id: 'workspace', parent: document.body });
+        const infos = dom.createElement({ id: 'infos', parent: workspace });
+        const labels = dom.createElement({ id: 'labels', parent: infos });
+        const location = dom.createElement({ id: 'location', parent: labels, className: 'info' });
+        const subdir = dom.createElement({ id: 'subdir', parent: labels, className: 'info' });
+        const name = dom.createElement({ id: 'name', parent: labels, className: 'info' });
+        const size = dom.createElement({ id: 'size', parent: labels, className: 'info' });
+        const buttons = dom.createElement({ id: 'buttons', parent: infos });
+        const up = dom.createElement({ id: 'up', parent: buttons, className: 'button', text: '..' });
+        const root = dom.createElement({ id: 'root', parent: workspace });
+        const canvas = dom.createElement({ id: 'canvas', parent: root, name: 'canvas', className: 'treemaptile' });
+        const canvasHover = dom.createElement({ id: 'canvasHover', parent: root, name: 'canvas', className: 'canvasHover' });
+        dom.createElement({ name: 'title', parent: document.head, text: 'Treemap' });
 
         elements.location = location;
         elements.subdir = subdir;
@@ -463,14 +569,24 @@ readyPromise.then(() => {
         elements.size = size;
         elements.up = up;
         elements.root = root;
-        elements.main = main;
+        elements.canvas = canvas;
+        elements.canvasHover = canvasHover;
+        elements.context = canvas.getContext('2d');
+        elements.contextHover = canvasHover.getContext('2d');
+        dom.addClickEvent(elements.canvas, on_click);
+        dom.addClickEvent(elements.canvasHover, on_click);
+        dom.addMouseMoveEvent(elements.canvas, on_hover);
+        dom.addMouseMoveEvent(elements.canvasHover, on_hover);
+        dom.addMouseOutOverEvent(elements.canvas, on_hover);
+        dom.addMouseOutOverEvent(elements.canvasHover, on_hover);
     };
     items_struct = undefined;
+    window.apply_items = apply_items;
     createMainStructure();
     setStatus("Loading data...");
     do_now(async () => {
         const data = load_data();
-        if (typeof(data) === typeof('')) {
+        if (typeof (data) === typeof ('')) {
             try {
                 const fetchResponse = await fetch('./map.json');
                 const blob = await fetchResponse.blob();
