@@ -133,7 +133,7 @@ int on_file_item(const char* fpath, const struct stat *sb, int typeflag, struct 
 
     node_info->is_dir = S_ISDIR(st_stat_buf.st_mode);
     uint64_t size = (uint64_t)st_stat_buf.st_size;
-    uint64_t occ_size = (uint64_t)(st_stat_buf.st_blksize)*(uint64_t)(st_stat_buf.st_blocks)/8;
+    uint64_t occ_size = (uint64_t)(512)*(uint64_t)(st_stat_buf.st_blocks);
 
     if (node_info->name && node_info->name[0] == '.' && node_parser_data->consider_dot_dir_as_file) {
         node_info->children_should_dump = false;
