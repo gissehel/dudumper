@@ -55,11 +55,7 @@ int main(int argc, char** argv) {
                 string_dumper = string_dumper_file_create(buffer_output_filename);
             }
 
-            if (buffer_output_filename != NULL) {
-                MEM_FREE(buffer_output_filename);
-                buffer_output_filename = NULL;
-            }
-
+            MEM_SET_NULL_AND_FREE(buffer_output_filename);
             
             if (global_configuration->mode == GLOBAL_CONFIGURATION_PARSER_MODE_HTML) {
                 node_info_consumer = node_info_consumer_html_create( string_dumper );

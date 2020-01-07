@@ -32,21 +32,9 @@ void global_configuration_add_error(struct global_configuration* global_configur
 }
 
 void global_configuration_free(struct global_configuration* global_configuration) {
-    if (global_configuration->self != NULL) {
-        MEM_FREE(global_configuration->self);
-        global_configuration->self = NULL;
-    }
-    if (global_configuration->output_filename_base != NULL) {
-        MEM_FREE(global_configuration->output_filename_base);
-        global_configuration->output_filename_base = NULL;
-    }
-    if (global_configuration->directory != NULL) {
-        MEM_FREE(global_configuration->directory);
-        global_configuration->directory = NULL;
-    }
-    if (global_configuration->parsing_error != NULL) {
-        MEM_FREE(global_configuration->parsing_error);
-        global_configuration->parsing_error = NULL;
-    }
+    MEM_SET_NULL_AND_FREE(global_configuration->self);
+    MEM_SET_NULL_AND_FREE(global_configuration->output_filename_base);
+    MEM_SET_NULL_AND_FREE(global_configuration->directory);
+    MEM_SET_NULL_AND_FREE(global_configuration->parsing_error);
     MEM_FREE(global_configuration);
 }

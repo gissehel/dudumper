@@ -38,6 +38,7 @@ char *mem_strdup_fl(const char *s, const char* filename, long line);
 #define MEM_ALLOC_STRUCT_DEF(type) MEM_ALLOC_STRUCT_DEF_NAME(type, type)
 #define MEM_STRDUP(obj) (mem_strdup(obj))
 #define MEM_FREE(obj) (mem_free(obj))
+#define MEM_SET_NULL_AND_FREE(obj) if (obj != NULL) { MEM_FREE(obj); obj = NULL; }
 
 #define MEM_STRUCT_AS(type, var) ((struct type*)var)
 #define MEM_STRUCT_PTR(type, var, field) MEM_STRUCT_AS(type, var)->field

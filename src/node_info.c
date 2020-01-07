@@ -91,14 +91,8 @@ void node_info_free(struct node_info* node_info) {
             node_info->parent->last_child = prev;
         }
     }
-    if (node_info->path != NULL) {
-        MEM_FREE(node_info->path);
-        node_info->path = NULL;
-    }
-    if (node_info->name != NULL) {
-        MEM_FREE(node_info->name);
-        node_info->name = NULL;
-    }
+    MEM_SET_NULL_AND_FREE(node_info->path);
+    MEM_SET_NULL_AND_FREE(node_info->name);
     MEM_FREE(node_info);
 }
 
