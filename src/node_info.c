@@ -28,11 +28,11 @@ struct node_info* node_info_create() {
     return node_info;
 }
 
-struct node_info* node_info_create_from_parent(struct node_info* parent, const char* path, const char* directory, const char* display_directory, const char* name) {
+struct node_info* node_info_create_from_parent(struct node_info* parent, const char* path, const char* directory, const char* display_directory, bool display_as_win, const char* name) {
     struct node_info* node_info = node_info_create();
     node_info->parent = parent;
     node_info->path = MEM_STRDUP(path);
-    node_info->display_path = replace_string(path, directory, display_directory);
+    node_info->display_path = replace_string(path, directory, display_directory, display_as_win);
     node_info->name = MEM_STRDUP(name);
     
     if (parent != NULL) {

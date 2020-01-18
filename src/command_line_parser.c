@@ -73,6 +73,10 @@ struct global_configuration* command_line_parser_parse(int argc, char** argv) {
                 global_configuration->consider_dot_dir_as_file = true;
                 is_parsed = 1;
             }
+            if (strcmp("--win", argv[arg_index])==0) {
+                global_configuration->display_as_win = true;
+                is_parsed = 1;
+            }
             if (strcmp("--cddaf-", argv[arg_index])==0) {
                 global_configuration->consider_dot_dir_as_file = false;
                 is_parsed = 1;
@@ -114,6 +118,7 @@ void command_line_parser_get_help(struct global_configuration* global_configurat
     printf("  --json                 dump json sctructure\n");
     printf("  --html                 dump html page\n");
     printf("  --cddaf[-]             consider dot dir as file (with - to disable). (Eg: .svn, .git, .hg, etc.)\n");
+    printf("  --win                  display dir as windows dir (replace / by \\)\n");
     printf("  --help                 display this help and exit\n");
     printf("\n");
 }

@@ -28,6 +28,7 @@ struct node_parser_data {
     char* directory;
     char* display_directory;
     bool consider_dot_dir_as_file;
+    bool display_as_win;
 };
 
 static struct node_parser_data* node_parser_data;
@@ -131,7 +132,7 @@ int on_file_item(const char* fpath, const struct stat *sb, int typeflag, struct 
         name = MEM_STRDUP(fpath);
     }
     
-    struct node_info* node_info = node_info_create_from_parent(node_parser_data->node_info_last == NULL ? NULL : node_parser_data->node_info_last, fpath, node_parser_data->directory, node_parser_data->display_directory, name);
+    struct node_info* node_info = node_info_create_from_parent(node_parser_data->node_info_last == NULL ? NULL : node_parser_data->node_info_last, fpath, node_parser_data->directory, node_parser_data->display_directory, node_parser_data->display_as_win, name);
 
     node_info->is_dir = S_ISDIR(st_stat_buf.st_mode);
     uint64_t size = (uint64_t)st_stat_buf.st_size;
@@ -165,7 +166,7 @@ int on_file_item(const char* fpath, const struct stat *sb, int typeflag, struct 
     return 0;
 }
 
-struct node_parser_data* node_parser_data_create(const struct node_parser* node_parser, bool consider_dot_dir_as_file, const char* directory, const char* display_directory) {
+struct node_parser_data* node_parser_data_create(const struct node_parser* node_parser, const char* directory, const char* display_directory, bool consider_dot_dir_as_file, bool display_as_win) {
     MEM_ALLOC_STRUCT_DEF(node_parser_data);
     node_parser_data->node_info_root = NULL;
     node_parser_data->node_info_last = NULL;
@@ -173,6 +174,7 @@ struct node_parser_data* node_parser_data_create(const struct node_parser* node_
     node_parser_data->node_parser = node_parser;
     node_parser_data->directory = mem_strdup(directory);
     node_parser_data->display_directory = display_directory == NULL ? NULL : mem_strdup(display_directory);
+    node_parser_data->display_as_win = display_as_win;
     return node_parser_data;
 }
 
@@ -189,8 +191,8 @@ void node_parser_start(const struct node_parser* node_parser) {
     }
 }
 
-void node_parser_parse(struct node_parser* node_parser, const char* path, const char* display_directory, bool consider_dot_dir_as_file) {
-    node_parser_data = node_parser_data_create(node_parser, consider_dot_dir_as_file, path, display_directory);
+void node_parser_parse(struct node_parser* node_parser, const char* path, const char* display_directory, bool consider_dot_dir_as_file, bool display_as_win) {
+    node_parser_data = node_parser_data_create(node_parser, path, display_directory, consider_dot_dir_as_file, display_as_win);
     node_parser_start(node_parser_data->node_parser);
     nftw(path, on_file_item, 200, FTW_PHYS);
     node_info_release_all();

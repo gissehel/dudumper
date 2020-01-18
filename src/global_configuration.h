@@ -20,6 +20,7 @@ struct global_configuration {
     char* parsing_error;
     bool need_help;
     bool consider_dot_dir_as_file;
+    bool display_as_win;
 };
 
 struct global_configuration* global_configuration_create();
