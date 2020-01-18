@@ -63,7 +63,7 @@ function get-path-map {
         output_file="$(basename "${OUTPUT}")"
     fi
     user="$(id -u):$(id -g)"
-    docker run -ti --user "${user}" -v "${input_path}:/data:ro" -v "${output_path}:/tmp:rw" gissehel/dudumper --dir /data --out /tmp/"${output_file}" --html
+    docker run -ti --user "${user}" -v "${input_path}:/data:ro" -v "${output_path}:/tmp:rw" gissehel/dudumper --dir /data --out /tmp/"${output_file}" --html --display-dir "${input_path}"
 }
 ```
 
