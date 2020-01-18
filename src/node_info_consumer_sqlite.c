@@ -32,7 +32,7 @@ void node_info_consumer_sqlite_stop(const struct node_info_consumer* node_info_c
 
 void node_info_consumer_sqlite_consume_node(const struct node_info_consumer* node_info_consumer, struct node_info* node_info) {
     char* name = quotestrdup_sql(node_info->name);
-    char* path = quotestrdup_sql(node_info->path);
+    char* path = quotestrdup_sql(node_info->display_path);
     MEM_STRUCT_PTR_DEF_STRUCT(node_info_consumer_sqlite, node_info_consumer, string_dumper, string_dumper);
     if (string_dumper != NULL) {
         STRING_DUMPER_DUMP(

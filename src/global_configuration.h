@@ -14,6 +14,7 @@ struct global_configuration {
     enum global_configuration_parser_mode mode;
     char* output_filename_base;
     char* directory;
+    char* display_directory;
     long max_depth;
 
     char* parsing_error;

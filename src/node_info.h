@@ -11,6 +11,7 @@ struct node_info {
     struct node_info* next;
 
     char* path;
+    char* display_path;
     char* name;
     uint64_t size;
     uint64_t occ_size;
@@ -22,7 +23,7 @@ struct node_info {
 };
 
 struct node_info* node_info_create();
-struct node_info* node_info_create_from_parent(struct node_info* parent, const char* path, const char* name);
+struct node_info* node_info_create_from_parent(struct node_info* parent, const char* path, const char* directory, const char* display_directory, const char* name);
 void node_info_free(struct node_info* node_info);
 
 #endif /* __NODE_INFO_H */

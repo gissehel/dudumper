@@ -26,10 +26,10 @@ void node_info_consumer_json_stop(const struct node_info_consumer* node_info_con
         STRING_DUMPER_DUMP(string_dumper, "{}]\n");
     }
 }
-
+ 
 void node_info_consumer_json_consume_node(const struct node_info_consumer* node_info_consumer, struct node_info* node_info) {
     char* name = doublequotestrdup_backquote(node_info->name);
-    char* path = doublequotestrdup_backquote(node_info->path);
+    char* path = doublequotestrdup_backquote(node_info->display_path);
     MEM_STRUCT_PTR_DEF_STRUCT(node_info_consumer_json, node_info_consumer, string_dumper, string_dumper);
     if (string_dumper != NULL) {
         STRING_DUMPER_DUMP(

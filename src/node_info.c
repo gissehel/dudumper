@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include "node_info.h"
 #include "mem_utils.h"
+#include "str_utils.h"
 
 long next_node_id = 1;
 
@@ -14,6 +15,7 @@ struct node_info* node_info_create() {
     node_info->prev = NULL;
     node_info->next = NULL;
     node_info->path = NULL;
+    node_info->display_path = NULL;
     node_info->name = NULL;
     node_info->size = 0;
     node_info->occ_size = 0;
@@ -26,10 +28,11 @@ struct node_info* node_info_create() {
     return node_info;
 }
 
-struct node_info* node_info_create_from_parent(struct node_info* parent, const char* path, const char* name) {
+struct node_info* node_info_create_from_parent(struct node_info* parent, const char* path, const char* directory, const char* display_directory, const char* name) {
     struct node_info* node_info = node_info_create();
     node_info->parent = parent;
     node_info->path = MEM_STRDUP(path);
+    node_info->display_path = replace_string(path, directory, display_directory);
     node_info->name = MEM_STRDUP(name);
     
     if (parent != NULL) {
@@ -92,6 +95,7 @@ void node_info_free(struct node_info* node_info) {
         }
     }
     MEM_SET_NULL_AND_FREE(node_info->path);
+    MEM_SET_NULL_AND_FREE(node_info->display_path);
     MEM_SET_NULL_AND_FREE(node_info->name);
     MEM_FREE(node_info);
 }

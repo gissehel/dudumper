@@ -10,6 +10,7 @@ struct global_configuration* global_configuration_create() {
     global_configuration->mode = GLOBAL_CONFIGURATION_PARSER_MODE_NONE;
     global_configuration->output_filename_base = NULL;
     global_configuration->directory = NULL;
+    global_configuration->display_directory = NULL;
     global_configuration->parsing_error = NULL;
     global_configuration->max_depth = 0;
     global_configuration->need_help = false;
@@ -35,6 +36,7 @@ void global_configuration_free(struct global_configuration* global_configuration
     MEM_SET_NULL_AND_FREE(global_configuration->self);
     MEM_SET_NULL_AND_FREE(global_configuration->output_filename_base);
     MEM_SET_NULL_AND_FREE(global_configuration->directory);
+    MEM_SET_NULL_AND_FREE(global_configuration->display_directory);
     MEM_SET_NULL_AND_FREE(global_configuration->parsing_error);
     MEM_FREE(global_configuration);
 }

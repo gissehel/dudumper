@@ -70,7 +70,7 @@ int main(int argc, char** argv) {
 
             if (result == 0) {
                 node_parser = node_parser_create(node_info_consumer, global_configuration->max_depth);
-                node_parser_parse(node_parser, global_configuration->directory, global_configuration->consider_dot_dir_as_file);
+                node_parser_parse(node_parser, global_configuration->directory, global_configuration->display_directory, global_configuration->consider_dot_dir_as_file);
                 result = 0;
             }
         }
