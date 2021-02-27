@@ -1,0 +1,52 @@
+name: 'build'
+
+on:
+    push:
+        branches:
+            - master
+
+jobs:
+    build:
+        name: 'Build'
+        runs-on: ubuntu-latest
+        steps:
+            - name: "Checkout"
+              uses: actions/checkout@v2
+
+            - name: "Set GITHUB_SHA_SHORT env var"
+              id: vars
+              run: |
+                  echo "::set-output name=GITHUB_SHA_SHORT::$(echo ${GITHUB_SHA} | cut -c1-8)"
+                  echo "::set-output name=IMAGE_NAME::$(echo "ghcr.io/${{ secrets.CR_USER }}/dudumper")"
+
+            - name: 'Login to github container registry'
+              uses: docker/login-action@v1
+              with:
+                  registry: ghcr.io
+                  username: ${{ secrets.CR_USER }}
+                  password: ${{ secrets.CR_PAT }}
+
+            - name: "Build image ${{ steps.vars.outputs.IMAGE_NAME }} ${{ steps.vars.outputs.GITHUB_SHA_SHORT }}"
+              uses: docker/build-push-action@v2
+              with:
+                  push: true
+                  no-cache: true
+                  tags: ${{ steps.vars.outputs.IMAGE_NAME }}:latest,${{ steps.vars.outputs.IMAGE_NAME }}:${{ steps.vars.outputs.GITHUB_SHA_SHORT }}
+
+            - name: "Tag using version"
+              run: |
+                  docker tag "${{ steps.vars.outputs.IMAGE_NAME }}:latest" "${{ steps.vars.outputs.IMAGE_NAME }}-${{ steps.vars.outputs.GITHUB_SHA_SHORT }}"
+                  docker push "${{ steps.vars.outputs.IMAGE_NAME }}-${{ steps.vars.outputs.GITHUB_SHA_SHORT }}"
+
+            - name: "Extract executable"
+              run: docker cp $(docker create "${{ steps.vars.outputs.IMAGE_NAME }}:latest"):/dudumper .
+
+            - name: "Upload dudumper artifact"
+              uses: actions/upload-artifact@v2
+              with:
+                  name: dudumper
+                  path: dudumper
+
+
+
+
