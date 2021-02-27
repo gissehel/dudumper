@@ -35,10 +35,16 @@ jobs:
                   no-cache: true
                   tags: ${{ steps.vars.outputs.IMAGE_NAME }}:latest,${{ steps.vars.outputs.IMAGE_NAME }}:${{ steps.vars.outputs.GITHUB_SHA_SHORT }}
 
-            - name: "Tag using version"
+            - name: "Tag using git version"
               run: |
-                  docker tag "${{ steps.vars.outputs.IMAGE_NAME }}:latest" "${{ steps.vars.outputs.IMAGE_NAME }}-${{ steps.vars.outputs.GITHUB_SHA_SHORT }}"
-                  docker push "${{ steps.vars.outputs.IMAGE_NAME }}-${{ steps.vars.outputs.GITHUB_SHA_SHORT }}"
+                  docker tag "${{ steps.vars.outputs.IMAGE_NAME }}:latest" "${{ steps.vars.outputs.IMAGE_NAME }}:${{ steps.vars.outputs.GITHUB_SHA_SHORT }}"
+                  docker push "${{ steps.vars.outputs.IMAGE_NAME }}:${{ steps.vars.outputs.GITHUB_SHA_SHORT }}"
+
+            - name: "Tag using tag version"
+              if: "contains(github.ref, 'refs/tags')"
+              run: |
+                  docker tag "${{ steps.vars.outputs.IMAGE_NAME }}:latest" "${{ steps.vars.outputs.IMAGE_NAME }}:${{ github.ref }}"
+                  docker push "${{ steps.vars.outputs.IMAGE_NAME }}:${{ github.ref }}"
 
             - name: "Extract executable"
               run: docker cp $(docker create "${{ steps.vars.outputs.IMAGE_NAME }}:latest"):/dudumper .
