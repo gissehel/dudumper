@@ -20,6 +20,7 @@ jobs:
               run: |
                   echo "::set-output name=GITHUB_SHA_SHORT::$(echo ${GITHUB_SHA} | cut -c1-8)"
                   echo "::set-output name=IMAGE_NAME::$(echo "ghcr.io/${{ secrets.CR_USER }}/dudumper")"
+                  echo "::set-output name=REFNAME::$(echo "${{ github.ref }}" | sed -e 's/.*\///')"
 
             - name: 'Login to github container registry'
               uses: docker/login-action@v1
@@ -43,8 +44,8 @@ jobs:
             - name: "Tag using tag version"
               if: "contains(github.ref, 'refs/tags')"
               run: |
-                  docker tag "${{ steps.vars.outputs.IMAGE_NAME }}:latest" "${{ steps.vars.outputs.IMAGE_NAME }}:${{ github.ref }}"
-                  docker push "${{ steps.vars.outputs.IMAGE_NAME }}:${{ github.ref }}"
+                  docker tag "${{ steps.vars.outputs.IMAGE_NAME }}:latest" "${{ steps.vars.outputs.IMAGE_NAME }}:${{ steps.vars.outputs.REFNAME }}"
+                  docker push "${{ steps.vars.outputs.IMAGE_NAME }}:${{ steps.vars.outputs.REFNAME }}"
 
             - name: "Extract executable"
               run: docker cp $(docker create "${{ steps.vars.outputs.IMAGE_NAME }}:latest"):/dudumper .
