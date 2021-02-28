@@ -1,0 +1,40 @@
+FROM ubuntu as nodebuilder
+
+ENV DEBIAN_FRONTEND noninteractive
+
+RUN apt update && \
+    apt install -y make git apt-transport-https curl perl
+RUN apt install -y gnupg2
+RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - 
+RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
+RUN curl -sL https://deb.nodesource.com/setup_14.x | bash -
+RUN apt update && \
+    apt install -y nodejs yarn
+RUN npm install -g coffeescript pug-cli stylus uglify-es
+RUN mkdir -p /work
+COPY . /work
+RUN cd /work/web && \
+    make clean all && \
+    echo "All is OK..."
+
+FROM centos:5.11 as builder
+
+RUN         sed -i -e 's/^#baseurl=/baseurl=/' \
+                   -e 's/^mirrorlist=/#mirrorlist=/' \
+                   -e 's!http://mirror.centos.org/centos/$releasever/!http://vault.centos.org/5.11/!' \
+                /etc/yum.repos.d/*.repo && \
+            sed -i -e 's/enabled=1/enabled=0/' \
+                /etc/yum.repos.d/libselinux.repo /etc/yum/pluginconf.d/fastestmirror.conf
+# RUN rpm -ivh --nodeps http://vault.centos.org/5.11/os/x86_64/CentOS/libselinux-python-1.33.4-5.7.el5.`uname -m`.rpm && yum update
+RUN yum update -y
+RUN yum install -y perl make g++ git wget gcc
+COPY . /work
+COPY --from=nodebuilder "/work/web/node_info_consumer_html_include.c" /work/src/node_info_consumer_html_include.c
+RUN cd /work/src && make clean all && echo "All is OK..."
+
+FROM scratch
+COPY --from=builder "/work/src/dudumper" /dudumper
+ENTRYPOINT [ "/dudumper" ]
+
+
+
