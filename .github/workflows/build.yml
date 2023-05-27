@@ -32,8 +32,8 @@ jobs:
           GITHUB_SHA_SHORT="$(echo ${GITHUB_SHA} | cut -c1-8)"
           REFNAME="$(echo "${{ github.ref }}" | sed -e 's/.*\///')"
           VERSION="${REFNAME}"
-          GH_IMAGE_NAME="$(echo "${{ env.GH_REGISTRY }}/${{ env.GH_USER }}/${{ env.IMAGE_NAME }}")"
-          DOCKER_HUB_IMAGE_NAME="$(echo "${{ env.DOCKER_HUB_REGISTRY }}/${{ env.DOCKER_HUB_USER }}/${{ env.IMAGE_NAME }}")"
+          GH_IMAGE_NAME="$(echo "${GH_REGISTRY}/${GH_USER}/${IMAGE_NAME}")"
+          DOCKER_HUB_IMAGE_NAME="$(echo "${DOCKER_HUB_REGISTRY}/${DOCKER_HUB_USER}/${IMAGE_NAME}")"
 
           export_ga GH_REGISTRY DOCKER_HUB_REGISTRY GH_USER DOCKER_HUB_USER IMAGE_NAME GITHUB_SHA_SHORT REFNAME VERSION GH_IMAGE_NAME DOCKER_HUB_IMAGE_NAME
 
