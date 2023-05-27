@@ -58,7 +58,7 @@ jobs:
 
       - name: Install cosign
         if: env.IS_PR != 'true'
-        uses: "sigstore/cosign-installer@3.0.5"
+        uses: "sigstore/cosign-installer@v3.0.5"
         with:
           cosign-release: "v2.0.2"
 
