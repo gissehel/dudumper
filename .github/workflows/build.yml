@@ -13,13 +13,14 @@ env:
   GH_USER: "${{ github.actor }}"
   DOCKER_HUB_USER: "${{ secrets.DOCKER_HUB_USER }}"
   IMAGE_NAME: "${{ github.event.repository.name }}"
-  GH_IMAGE_NAME: "${{ env.GH_REGISTRY }}/${{ env.GH_USER }}/${{ env.IMAGE_NAME }}"
-  DOCKER_HUB_IMAGE_NAME: "${{ env.DOCKER_HUB_REGISTRY }}/${{ env.DOCKER_HUB_USER }}/${{ env.IMAGE_NAME }}"
 
 jobs:
   build:
     name: "Build"
     runs-on: ubuntu-latest
+    env:
+      GH_IMAGE_NAME: "${{ env.GH_REGISTRY }}/${{ env.GH_USER }}/${{ env.IMAGE_NAME }}"
+      DOCKER_HUB_IMAGE_NAME: "${{ env.DOCKER_HUB_REGISTRY }}/${{ env.DOCKER_HUB_USER }}/${{ env.IMAGE_NAME }}"
     steps:
       - name: "Checkout"
         uses: actions/checkout@v3
