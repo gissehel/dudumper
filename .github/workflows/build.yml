@@ -61,7 +61,6 @@ jobs:
       # Extract metadata (tags, labels) for Docker
       # https://github.com/docker/metadata-action
       - name: Extract Docker metadata (if not a tag)
-        id: meta
         uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
         if: "!contains(github.ref, 'refs/tags')"
         with:
@@ -71,7 +70,6 @@ jobs:
       # Extract metadata (tags, labels) for Docker
       # https://github.com/docker/metadata-action
       - name: Extract Docker metadata (if not a tag)
-        id: meta
         uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
         if: "!contains(github.ref, 'refs/tags')"
         with:
