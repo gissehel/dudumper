@@ -77,13 +77,18 @@ function get-path-map {
         output_file="$(basename "${OUTPUT}")"
     fi
     user="$(id -u):$(id -g)"
+    echo docker run -ti --user "${user}" -v "${input_path}:/data:ro" -v "${output_path}:/tmp:rw" gissehel/dudumper --dir /data --out /tmp/"${output_file}" --html --display-dir "${input_path}"
     docker run -ti --user "${user}" -v "${input_path}:/data:ro" -v "${output_path}:/tmp:rw" gissehel/dudumper --dir /data --out /tmp/"${output_file}" --html --display-dir "${input_path}"
-}
+    echo "${output_path}/${output_file}.html"
+}sss
 ```
 
-Usage: `get-path-map [INPUT_FOLDER] [OUTPUT_FILE]`
+Usage: `get-path-map [INPUT_FOLDER] [OUTPUT_FILE_BASENAME]`
 
 # References
 
-* Project page: https://github.com/gissehel/dudumper
-* Docker hub project page : https://hub.docker.com/repository/docker/gissehel/dudumper
+* Project page: **https://github.com/gissehel/dudumper**
+* Docker hub project page : **https://hub.docker.com/repository/docker/gissehel/dudumper**
+* Image on docker hub: **gissehel/dudumper**
+* Image on github registry: **ghcr.io/gissehel/dudumper**
+
