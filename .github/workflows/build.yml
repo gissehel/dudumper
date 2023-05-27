@@ -73,11 +73,11 @@ jobs:
         if: "!contains(github.ref, 'refs/tags')"
         with:
           tags: |
+            type=sha,enable=true,priority=100,prefix=,suffix=,format=short
             type=schedule
             type=ref,event=branch
             type=ref,event=tag
             type=ref,event=pr
-            type=sha,enable=true,priority=100,prefix=,suffix=,format=short
           images: |
             ${{ env.GH_IMAGE_NAME }}
 
@@ -97,13 +97,33 @@ jobs:
         with:
           context: .
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }},${{ steps.meta2.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }},${{ steps.meta2.outputs.labels }}          
+          tags: |
+            ${{ steps.meta.outputs.tags }}
+            ${{ steps.meta2.outputs.tags }}
+          labels: |
+            ${{ steps.meta.outputs.labels }}
+            ${{ steps.meta2.outputs.labels }}          
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: "Set env vars (for MAIN_DOCKER_TAG)"
+        run: |
+          export_ga() {
+            for name in "${@}"
+            do
+              echo "${name}=${!name}" >> "${GITHUB_ENV}"
+            done
+          }
+
+          META_MAIN_DOCKER_TAG=$(echo "${{ steps.meta.outputs.tags }}" | head -n 1)
+          META2_MAIN_DOCKER_TAG=$(echo "${{ steps.meta2.outputs.tags }}" | head -n 1)
+          [ -n "${META_MAIN_DOCKER_TAG}" ] && MAIN_DOCKER_TAG="${META_MAIN_DOCKER_TAG}" || MAIN_DOCKER_TAG="${META2_MAIN_DOCKER_TAG}"
+
+          export_ga MAIN_DOCKER_TAG
+
       - name: "Extract executable"
-        run: docker cp $(docker create "${{ env.GH_IMAGE_NAME }}:${{ env.GITHUB_SHA_SHORT }}"):/dudumper .
+        run: |
+          docker cp $(docker create "${{ env.MAIN_DOCKER_TAG }}"):/dudumper .
 
       - name: "Upload dudumper artifact"
         uses: "actions/upload-artifact@v2"
