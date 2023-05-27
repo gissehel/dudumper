@@ -12,10 +12,24 @@ still not storing everything in memory.
 
 # Usage
 
-as `--help` is not supported right now, the usage is on this page only.
-
 ```
-dudumper [--out FILENAME] [--dir .] [--depth MAX_DEPTH_TO_OUTPUT] (--json|--sqlite)
+Usage: dudumper [OPTION]...
+Disk usage dumper.
+Dump disk usage into files that can used latter to browse,
+display, query disk usage.
+
+  --dir DIRNAME          the directory to parse
+  --out FILENAME         the base filename to parse.
+                         extension will be appened based
+                         on file type
+  --display-dir DIRNAME  the directory to display instead of --dir
+  --depth DEPTH          the depth to output in the dump
+  --sqlite               dump sqlite script
+  --json                 dump json sctructure
+  --html                 dump html page
+  --cddaf[-]             consider dot dir as file (with - to disable). (Eg: .svn, .git, .hg, etc.)
+  --win                  display dir as windows dir (replace / by \)
+  --help                 display this help and exit
 ```
 
 # Example

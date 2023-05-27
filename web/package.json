@@ -1,0 +1,10 @@
+{
+  "scripts": {
+    "uglifyjs" : "uglifyjs",
+    "stylus" : "stylus"
+  },
+  "dependencies": {
+    "stylus": "^0.59.0",
+    "uglify-js": "^3.17.4"
+  }
+}
