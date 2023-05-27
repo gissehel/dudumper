@@ -13,8 +13,8 @@ env:
   GH_USER: "${{ github.actor }}"
   DOCKER_HUB_USER: "${{ secrets.DOCKER_HUB_USER }}"
   IMAGE_NAME: "${{ github.event.repository.name }}"
-  GH_IMAGE_NAME: "${{ GH_REGISTRY }}/${{ GH_USER }}/${{ IMAGE_NAME }}"
-  DOCKER_HUB_IMAGE_NAME: "${{ DOCKER_HUB_REGISTRY }}/${{ DOCKER_HUB_USER }}/${{ IMAGE_NAME }}"
+  GH_IMAGE_NAME: "${{ env.GH_REGISTRY }}/${{ env.GH_USER }}/${{ env.IMAGE_NAME }}"
+  DOCKER_HUB_IMAGE_NAME: "${{ env.DOCKER_HUB_REGISTRY }}/${{ env.DOCKER_HUB_USER }}/${{ env.IMAGE_NAME }}"
 
 jobs:
   build:
@@ -66,7 +66,7 @@ jobs:
         if: "!contains(github.ref, 'refs/tags')"
         with:
           images: |
-            ${{ GH_IMAGE_NAME }}
+            ${{ env.GH_IMAGE_NAME }}
 
       # Extract metadata (tags, labels) for Docker
       # https://github.com/docker/metadata-action
