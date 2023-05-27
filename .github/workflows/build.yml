@@ -20,7 +20,7 @@ jobs:
           export_ga() {
             for name in "${@}"
             do
-              echo "${name}=\"${!name}\"" >> "${GITHUB_ENV}"
+              echo "${name}=${!name}" >> "${GITHUB_ENV}"
             done
           }
 
