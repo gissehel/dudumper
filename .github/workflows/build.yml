@@ -68,17 +68,25 @@ jobs:
       # Extract metadata (tags, labels) for Docker
       # https://github.com/docker/metadata-action
       - name: Extract Docker metadata (if not a tag)
+        id: meta
         uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
         if: "!contains(github.ref, 'refs/tags')"
         with:
+          tags: |
+            type=schedule
+            type=ref,event=branch
+            type=ref,event=tag
+            type=ref,event=pr
+            type=sha,enable=true,priority=100,prefix=,suffix=,format=short
           images: |
             ${{ env.GH_IMAGE_NAME }}
 
       # Extract metadata (tags, labels) for Docker
       # https://github.com/docker/metadata-action
       - name: Extract Docker metadata (if not a tag)
+        id: meta2
         uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
-        if: "!contains(github.ref, 'refs/tags')"
+        if: "contains(github.ref, 'refs/tags')"
         with:
           images: |
             ${{ env.GH_IMAGE_NAME }}
@@ -87,26 +95,12 @@ jobs:
       - name: "Build image ${{ env.GH_IMAGE_NAME }} ${{ env.GITHUB_SHA_SHORT }}"
         uses: docker/build-push-action@v2
         with:
-          push: true
-          no-cache: true
-          tags: ${{ env.GH_IMAGE_NAME }}:${{ env.REFNAME }},${{ env.GH_IMAGE_NAME }}:${{ env.GITHUB_SHA_SHORT }}
-
-      - name: "Tag using git version"
-        run: |
-          docker tag "${{ env.GH_IMAGE_NAME }}:${{ env.GITHUB_SHA_SHORT }}" "${{ env.DOCKER_HUB_IMAGE_NAME }}:${{ env.GITHUB_SHA_SHORT }}"
-          docker push "${{ env.DOCKER_HUB_IMAGE_NAME }}:${{ env.GITHUB_SHA_SHORT }}"
-
-      - name: "Tag using tag version"
-        if: "contains(github.ref, 'refs/tags')"
-        run: |
-          docker tag "${{ env.GH_IMAGE_NAME }}:${{ env.GITHUB_SHA_SHORT }}" "${{ env.GH_IMAGE_NAME }}:latest"
-          docker tag "${{ env.GH_IMAGE_NAME }}:${{ env.GITHUB_SHA_SHORT }}" "${{ env.DOCKER_HUB_IMAGE_NAME }}:${{ env.GITHUB_SHA_SHORT }}"
-          docker tag "${{ env.GH_IMAGE_NAME }}:${{ env.GITHUB_SHA_SHORT }}" "${{ env.DOCKER_HUB_IMAGE_NAME }}:${{ env.REFNAME }}"
-          docker tag "${{ env.GH_IMAGE_NAME }}:${{ env.GITHUB_SHA_SHORT }}" "${{ env.DOCKER_HUB_IMAGE_NAME }}:latest"
-          docker push "${{ env.GH_IMAGE_NAME }}:latest"
-          docker push "${{ env.DOCKER_HUB_IMAGE_NAME }}:${{ env.GITHUB_SHA_SHORT }}"
-          docker push "${{ env.DOCKER_HUB_IMAGE_NAME }}:${{ env.REFNAME }}"
-          docker push "${{ env.DOCKER_HUB_IMAGE_NAME }}:latest"
+          context: .
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }},${{ steps.meta2.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }},${{ steps.meta2.outputs.labels }}          
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: "Extract executable"
         run: docker cp $(docker create "${{ env.GH_IMAGE_NAME }}:${{ env.GITHUB_SHA_SHORT }}"):/dudumper .
@@ -140,38 +134,3 @@ jobs:
           asset_path: "./dudumper"
           asset_name: "dudumper"
           asset_content_type: "application/octet-stream"
-
-      # - name: "Build image ${{ env.IMAGE_NAME }} ${{ env.GITHUB_SHA_SHORT }} (old kernel)"
-      #   uses: docker/build-push-action@v2
-      #   with:
-      #     file: Dockerfile-oldkernel
-      #     push: true
-      #     no-cache: true
-      #     tags: ${{ env.IMAGE_NAME }}:oldkernel,${{ env.IMAGE_NAME }}:oldkernel-${{ env.GITHUB_SHA_SHORT }}
- 
-      # - name: "Tag using tag version (old kernel)"
-      #   if: "contains(github.ref, 'refs/tags')"
-      #   run: |
-      #     docker tag "${{ env.IMAGE_NAME }}:oldkernel" "${{ env.IMAGE_NAME }}:oldkernel-${{ env.REFNAME }}"
-      #     docker push "${{ env.IMAGE_NAME }}:oldkernel-${{ env.REFNAME }}"
-
-      # - name: "Extract executable"
-      #   run: docker cp $(docker create "${{ env.IMAGE_NAME }}:oldkernel"):/dudumper ./dudumper-oldkernel
-
-      # - name: "Upload dudumper artifact"
-      #   uses: "actions/upload-artifact@v2"
-      #   with:
-      #     name: "dudumper-oldkernel"
-      #     path: "dudumper-oldkernel"
- 
-      # - name: "Upload Release Asset"
-      #   if: "contains(github.ref, 'refs/tags')"
-      #   id: "upload-release-asset-oldkernel"
-      #   uses: "actions/upload-release-asset@v1"
-      #   env:
-      #     GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-      #   with:
-      #     upload_url: "${{ steps.create_release.outputs.upload_url }}"
-      #     asset_path: "./dudumper-oldkernel"
-      #     asset_name: "dudumper-oldkernel"
-      #     asset_content_type: "application/octet-stream"
