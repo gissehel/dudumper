@@ -7,13 +7,6 @@ on:
     tags:
       - "v*"
 
-env:
-  GH_REGISTRY: "ghcr.io"
-  DOCKER_HUB_REGISTRY: "docker.io"
-  GH_USER: "${{ github.actor }}"
-  DOCKER_HUB_USER: "${{ secrets.DOCKER_HUB_USER }}"
-  IMAGE_NAME: "${{ github.event.repository.name }}"
-
 jobs:
   build:
     name: "Build"
@@ -24,11 +17,25 @@ jobs:
 
       - name: "Set env vars"
         run: |
-          echo "GITHUB_SHA_SHORT=$(echo ${GITHUB_SHA} | cut -c1-8)" >> "${GITHUB_ENV}"
-          echo "REFNAME=$(echo "${{ github.ref }}" | sed -e 's/.*\///')" >> "${GITHUB_ENV}"
-          echo "VERSION=$(echo "${{ github.ref }}" | sed -e 's/.*\///')" >> "${GITHUB_ENV}"
-          echo "GH_IMAGE_NAME=$(echo "${{ env.GH_REGISTRY }}/${{ env.GH_USER }}/${{ env.IMAGE_NAME }}")" >> "${GITHUB_ENV}"
-          echo "DOCKER_HUB_IMAGE_NAME=$(echo "${{ env.DOCKER_HUB_REGISTRY }}/${{ env.DOCKER_HUB_USER }}/${{ env.IMAGE_NAME }}")" >> "${GITHUB_ENV}"
+          export_ga() {
+            for name in "${@}"
+            do
+              echo "${name}=\"${!name}\"" >> "${GITHUB_ENV}"
+            done
+          }
+
+          GH_REGISTRY="ghcr.io"
+          DOCKER_HUB_REGISTRY="docker.io"
+          GH_USER="${{ github.actor }}"
+          DOCKER_HUB_USER="${{ vars.DOCKER_HUB_USER }}"
+          IMAGE_NAME="${{ github.event.repository.name }}"
+          GITHUB_SHA_SHORT="$(echo ${GITHUB_SHA} | cut -c1-8)"
+          REFNAME="$(echo "${{ github.ref }}" | sed -e 's/.*\///')"
+          VERSION="${REFNAME}"
+          GH_IMAGE_NAME="$(echo "${{ env.GH_REGISTRY }}/${{ env.GH_USER }}/${{ env.IMAGE_NAME }}")"
+          DOCKER_HUB_IMAGE_NAME="$(echo "${{ env.DOCKER_HUB_REGISTRY }}/${{ env.DOCKER_HUB_USER }}/${{ env.IMAGE_NAME }}")"
+
+          export_ga GH_REGISTRY DOCKER_HUB_REGISTRY GH_USER DOCKER_HUB_USER IMAGE_NAME GITHUB_SHA_SHORT REFNAME VERSION GH_IMAGE_NAME DOCKER_HUB_IMAGE_NAME
 
       # Install the cosign tool except on PR
       # https://github.com/sigstore/cosign-installer
