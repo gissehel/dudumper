@@ -80,7 +80,7 @@ function get-path-map {
     echo docker run -ti --user "${user}" -v "${input_path}:/data:ro" -v "${output_path}:/tmp:rw" gissehel/dudumper --dir /data --out /tmp/"${output_file}" --html --display-dir "${input_path}"
     docker run -ti --user "${user}" -v "${input_path}:/data:ro" -v "${output_path}:/tmp:rw" gissehel/dudumper --dir /data --out /tmp/"${output_file}" --html --display-dir "${input_path}"
     echo "${output_path}/${output_file}.html"
-}sss
+}
 ```
 
 Usage: `get-path-map [INPUT_FOLDER] [OUTPUT_FILE_BASENAME]`
